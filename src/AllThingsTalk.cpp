@@ -241,8 +241,7 @@ void Device::init() {
         client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
     }
     
-    connectWiFi();
-    connectAllThingsTalk();
+    connect();
 }
 
 // Needs to be run in program loop in order to keep connections alive

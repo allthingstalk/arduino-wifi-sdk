@@ -25,22 +25,22 @@ auto device      = Device(wifiCreds, deviceCreds);                // Create "dev
 char* asset      = "Sensor-Asset";                                // Name of your Sensor asset
 
 void setup() {
-  Serial.begin(115200);             // Baud rate: 115200, but you can define any baud rate you want
-  device.debugPort(Serial, true);   // Set library to output verbose debug to "Serial" port (defined above)
-  device.connectionLed(2);          // GPIO PIN 2 Defined for connection LED
-  device.wifiSignalReporting(60);   // Report WiFi Signal every 60 seconds
-  device.setHostname("ATT-EXAMPLE") // Sets hostname of the device (Shows up on your WiFi network under this name)
-  device.init();                    // Initialize AllThingsTalk
+  Serial.begin(115200);                 // Baud rate: 115200, but you can define any baud rate you want
+  device.debugPort(Serial, true);       // Set library to output verbose debug to "Serial" port (defined above)
+  device.connectionLed(2);              // GPIO PIN 2 Defined for connection LED
+  device.wifiSignalReporting(60);       // Report WiFi Signal every 60 seconds
+  device.setHostname("ATT-EXAMPLE");    // Sets hostname of the device (Shows up on your WiFi network under this name)
+  device.init();                        // Initialize AllThingsTalk
   device.send(asset, "Booted! Hello!"); // Send message "Booted! Hello!" to topic "asset_name"
 }
 void loop() {
-  device.loop();                    // Used to keep AllThingsTalk & WiFi connection alive
+  device.loop();         // Used to keep AllThingsTalk & WiFi connection alive
   device.send(asset, "Disconnecting WiFi & AllThingsTalk in 3 seconds"); // Send message to "asset" variable defined on top
-  delay(3000);                      // Wait 3 seconds
+  delay(3000);           // Wait 3 seconds
   device.send(asset, "Disconnecting WiFi & AllThingsTalk Now");
-  device.disconnect();              // Disconnect from both AllThingsTalk and WiFi
-  delay(5000);                      // Wait 5 seconds
-  device.connect();                 // Connect to both WiFi and AllThingsTalk
+  device.disconnect();   // Disconnect from both AllThingsTalk and WiFi
+  delay(5000);           // Wait 5 seconds
+  device.connect();      // Connect to both WiFi and AllThingsTalk
   device.send(asset, "WiFi and AllThingsTalk Connection Re-Established");
-  delay(5000);                      // Wait 5 seconds
+  delay(5000);           // Wait 5 seconds
 }

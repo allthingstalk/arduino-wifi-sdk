@@ -18,7 +18,7 @@
 auto wifiCreds   = WifiCredentials("WiFi-SSID", "WiFi-Password"); // Your WiFi Network Name and Password
 auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");     // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
 auto device      = Device(wifiCreds, deviceCreds);                // Create "device" object
-String yourAsset = "Sensor-Asset";                                // Name of the asset you're going to send data to
+char* yourAsset = "Sensor-Asset";                                 // Name of the asset you're going to send data to
 
 unsigned long startMillis;          // Used to keep track of send intervals
 unsigned long currentMillis;        // Used to keep track of send intervals
