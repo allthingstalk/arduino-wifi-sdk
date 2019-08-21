@@ -42,7 +42,7 @@ Notes:
 #include <ArduinoJson.h>
 
 
-#ifdef ARDUINO_ESP8266_NODEMCU
+#ifdef ESP8266
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
 
@@ -756,7 +756,7 @@ template void Device::send(char *asset, double payload);
 
 #ifndef __HAS_IMPLEMENTATION
 Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {
-    #error "Currently, only NodeMCU is supported. This will change shortly."
+    #error "Currently, only ESP8266 and ESP8266 Dev boards are supported. This will change shortly."
 
 }
 #undef __HAS_IMPLEMENTATION

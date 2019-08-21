@@ -153,7 +153,7 @@ void CborWriter::writeTypeAndValue(uint8_t majorType, const uint64_t value) {
 }
 
 // UNCOMMENT FOR MKR1010
-#ifndef ARDUINO_ESP8266_NODEMCU
+#ifndef ESP8266
 void CborWriter::writeInt(const int value) {
 	// This will break on 64-bit platforms
 	writeTypeAndValue(0, (uint32_t)value);

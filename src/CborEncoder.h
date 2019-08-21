@@ -68,7 +68,7 @@ public:
 	CborWriter(CborOutput &output);
 	~CborWriter();
 
-#ifndef ARDUINO_ESP8266_NODEMCU
+#ifndef ESP8266
 	void writeInt(const int value);
 #endif
 	void writeInt(const int32_t value);
