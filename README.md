@@ -57,16 +57,11 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     - Copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*)
 - **Install Dependencies**
     - Open Arduino IDE and go to *Tools* > *Manage Libraries*
-    - Search for and download “**PubSubClient**” by Nick O’Leary and “**ArduinoJson**” by Benoit Blanchon
-    - Modify PubSubClient to support bigger payloads
-        - Go to PubSubClient in your Arduino libraries folder  
-          *Documents > Arduino > libraries > PubSubClient > src*
-        - Open `PubSubClient.h` and change `MQTT_MAX_PACKET_SIZE` from `128` to `512`
-        - Save the file
+    - Search for and download “**ArduinoJson**” by Benoit Blanchon
 - **Restart your Arduino IDE**
 
 You can now add this library in your sketch by going to *Sketch > Include Library > AllThingsTalk* or by adding *<AllThingsTalk.h>* in your sketch.  
-Play with examples included in this library by going to *File > Examples > AllThingsTalk*
+Make sure to play with examples included in this library by going to *File > Examples > AllThingsTalk*
 
 ## Board Support
 The library automatically recognizes supported Arduino boards and uses adequate version of itself.  
@@ -81,7 +76,6 @@ Support is planned for the following boards:
 - Arduino MKR 1000
 - Arduino MKR 1010
 - Arduino Generic with Ethernet Shield
-
 
 
 # Connecting
@@ -106,7 +100,7 @@ auto device = Device(wifiCreds, deviceCreds);
 
 ## Maintaining Connection
 
-And all you have to do to connect and to maintain a connection is add `device.init()` to your `setup()` function and `device.loop()` to your `loop()` function:
+All you have to do to connect and to maintain a connection is add `init()` method to your `setup()` function and `loop()` method to your `loop()` function:
 
 ```cpp
 void setup() {
@@ -118,11 +112,11 @@ void loop() {
 ```
 
 This will take care of connecting to WiFi and AllThingsTalk.  
-It will also show connection status using the built-in LED of your board and publish WiFi Signal Strength to your [AllThingsTalk Maker](https://maker.allthingstalk.com)
+It will also show connection status using the [built-in LED](#connection-led) of your board and publish [WiFi Signal Strength](#wifi-signal-reporting) to your [AllThingsTalk Maker](https://maker.allthingstalk.com)
 
 ## Connecting and Disconnecting
 
-Connection is automatically established once `device.init()` is executed.  
+Connection is automatically established once `init()` is executed.  
 However, if you wish to disconnect and/or connect from either WiFi or AllThingsTalk during device operation, you can do that by using these methods anywhere in your sketch:
 
 | **Method**                 | **Operation**                                                                 |
@@ -162,7 +156,7 @@ The library utilizes the built-in LED of your board to show current WiFi and All
 | Off                     | WiFi and AllThingsTalk are both connected properly |
 | Breathing               | Connecting to WiFi / AllThingsTalk…                |
 | Breathing               | Connection failed. Trying to reconnect…            |
-| Flashes quickly 2 times | Connection successful                              |
+| Flashes quickly 2 times | Connection to AllThingsTalk and WiFi successful                              |
 
 
 ### Define Your Own Connection LED Pin
@@ -179,11 +173,13 @@ void setup() {
 
 This feature can also be defined as `connectionLed(true, your_led_pin)`
 
+> Custom Connection LED pin needs to be defined before `init()` and cannot be changed during operation.
+
 
 ### Disable Connection LED
 
 Connection LED is enabled by default, but you can optionally disable it in case you need the LED for other purposes.  
-In order to disable the Connection LED, add `device.connectionLed(false)` before initializing your device in `setup()` function:
+In order to disable the Connection LED, add `connectionLed(false)` in your `setup()` function:
 
 ```cpp
 void setup() {
@@ -191,7 +187,7 @@ void setup() {
   device.init();
 }
 ```
-
+> You can  `connectionLed(false)` and `connectionLed(true)` anywhere in your sketch, in case you need to enable/disable it during operation.
 
 ## WiFi Signal Reporting
 
@@ -215,7 +211,8 @@ void setup() {
 ```
 
 This feature can also be defined as `wifiSignalReporting(true, seconds)`  
-You can also call this method anywhere in your sketch if you wish to change this value during operation.
+
+> You can call `wifiSignalReporting` anywhere in your sketch if you wish to change its values during operation.
 
 ### WiFi Signal Strength On-Demand
 
@@ -234,7 +231,7 @@ void loop() {
 
 ### Disable WiFi Signal Reporting
 
-If you wish to disable this feature, just call `device.wifiSignalReporting(false)` in your setup function instead:
+If you wish to disable this feature, just call `wifiSignalReporting(false)` in your setup function instead:
 
 ```cpp
 void setup() {
@@ -243,7 +240,7 @@ void setup() {
 }
 ```
 
-You can also enable and disable WiFi Signal Reporting anywhere in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
+> You can enable and disable WiFi Signal Reporting anywhere in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
 
 
 # Sending Data
@@ -353,6 +350,7 @@ device.send(payload);
 Actuation Callbacks call your functions once a message arrives from your AllThingsTalk Maker to your device on a specified asset.  
 For each “Actuator” asset you have on your AllThingsTalk Maker device, you can add an actuation callback in your `setup()` function by adding `setActuationCallback("Your-Actuator-Asset-Name", YourFunction)`  
 To receive data, simply create functions that utilize your desired type of data.  
+
 >Your function argument can be of any type, just make sure to match your function argument type with your actuator asset type on AllThingsTalk Maker. 
 
 **Example:**
@@ -374,7 +372,10 @@ void myActuation1(String data) {
 }
 
 void myActuation2(bool data) {
-  digitalWrite(LED_PIN, data); // Set LED to 'true'/'false' depending on command received
+  if (data) {
+    digitalWrite(LED_PIN, HIGH); // Turns on LED
+  } else {
+    digitalWrite(LED_PIN, LOW); // Turns off LED
 }
 
 void loop() {
@@ -383,11 +384,10 @@ void loop() {
 ```
 
 This means that each time a message arrives from your Actuator asset `your-asset-1` from AllThingsTalk Maker, your function `myActuation1` will be called and the message (actual data) will be forwarded to it as an argument.  
-In this case, if your device receives a string value `Hello there!` on asset `your-asset-1`, the received message will be printed via Serial and if it receives value `true	` on asset `your-asset-2`, the LED will be turned on. (You would change LED_PIN to a real pin on your board).
+In this case, if your device receives a string value `Hello there!` on asset `your-asset-1`, the received message will be printed via Serial and if it receives value `true` on asset `your-asset-2`, the LED will be turned on. (You would change LED_PIN to a real pin on your board).
 
-> Make sure to set new actuation callbacks before you initialize the device with `device.init()`
-
-You can define up to 32 actuations.
+> You can call `setActuationCallback` anywhere in your sketch and it will add a new Actuation Callback.
+> You can define up to 32 Actuation Callbacks.
 
 
 # Debug
@@ -434,11 +434,11 @@ void setup() {
 
 # Notes
 - This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/)
-- The modification of PubSubClient.h is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. If you're dealing with smaller payloads, this modification may not be required, but if you see that your messages are being cut-off, know that this is the reason.
+- The PubSubClient library is included with the AllThingsTalk Arduino SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino SDK is made easier and the version of PubSubClient is guaranteed to be compatible.
 - Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time. Try to use `millis()` instead of `delay()` when possible.
 - Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` way too often. In this case, it is okay to use `delay()` for about 5 to 50 milliseconds (see what works for you) in order to avoid this issue.
 - Receiving **Objects** or **Arrays** is not currently supported. Support is planned in next release.
 - This library has been tested and confirmed to work with:
     - Arduino 1.8.9
-    - PubSubClient 2.7.0
+    - PubSubClient 2.7.0 (Included)
     - ArduinoJson 6.11.4

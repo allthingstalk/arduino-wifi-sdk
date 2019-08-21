@@ -38,8 +38,9 @@ Notes:
 #include "Arduino.h"
 #include "CborPayload.h"
 #include "BinaryPayload.h"
+#include "PubSubClient.h"
 #include <ArduinoJson.h>
-#include <PubSubClient.h>
+
 
 #ifdef ARDUINO_ESP8266_NODEMCU
 #include <Ticker.h>
@@ -755,6 +756,7 @@ template void Device::send(char *asset, double payload);
 
 #ifndef __HAS_IMPLEMENTATION
 Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {
+    #error "Currently, only NodeMCU is supported. This will change shortly."
 
 }
 #undef __HAS_IMPLEMENTATION
