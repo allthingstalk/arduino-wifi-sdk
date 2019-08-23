@@ -25,15 +25,6 @@
  * Detailed instructions for this library can be found: https://github.com/allthingstalk/arduino-sdk-v2
  */
 
-/*
-Notes:
-- Not Receiving Messages:
-  In order to receive bigger payloads (strings), change the
-  MQTT_MAX_PACKET_SIZE to 256 or 512 in your PubSubClient.h
-- MQTT Connection will break if delay() is used for prolonged periods of time.
-  It is suggested to use millis() to create delays when necessary
-*/
-
 #include "AllThingsTalk.h"
 #include "Arduino.h"
 #include "CborPayload.h"
