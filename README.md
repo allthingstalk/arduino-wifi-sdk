@@ -187,7 +187,7 @@ void setup() {
   device.init();
 }
 ```
-> You can  `connectionLed(false)` and `connectionLed(true)` anywhere in your sketch, in case you need to enable/disable it during operation.
+> Unlike defining the Connection LED Pin, you **can** run  `connectionLed(false)` and `connectionLed(true)` anywhere in your sketch, in case you need to enable/disable it during operation.
 
 ## WiFi Signal Reporting
 
@@ -196,7 +196,7 @@ The strength is presented as `Excellent`, `Good`, `Decent`, `Bad` and `Horrible`
 
 ### Showing WiFi Signal Strength
 
-To show WiFi Signal Strength, create a Sensor asset on your AllThingsTalk Maker device named `wifi-signal` of type `String`
+To show WiFi Signal Strength, create a *Sensor* asset on your AllThingsTalk Maker device named `wifi-signal` of type `String`
 
 ### Custom Reporting Interval
 
@@ -348,10 +348,10 @@ device.send(payload);
 ## Actuation Callbacks
 
 Actuation Callbacks call your functions once a message arrives from your AllThingsTalk Maker to your device on a specified asset.  
-For each “Actuator” asset you have on your AllThingsTalk Maker device, you can add an actuation callback in your `setup()` function by adding `setActuationCallback("Your-Actuator-Asset-Name", YourFunction)`  
+For each *Actuator* asset you have on your AllThingsTalk Maker device, you can add an actuation callback in your `setup()` function by adding `setActuationCallback("Your-Actuator-Asset-Name", YourFunction)`  
 To receive data, simply create functions that utilize your desired type of data.  
 
->Your function argument can be of any type, just make sure to match your function argument type with your actuator asset type on AllThingsTalk Maker. 
+>Your function argument can be of any type, just make sure to match your function argument type with your *Actuator* asset type on AllThingsTalk Maker. 
 
 **Example:**
 
@@ -383,7 +383,7 @@ void loop() {
 }
 ```
 
-This means that each time a message arrives from your Actuator asset `your-asset-1` from AllThingsTalk Maker, your function `myActuation1` will be called and the message (actual data) will be forwarded to it as an argument.  
+This means that each time a message arrives from your *Actuator* asset `your-asset-1` from AllThingsTalk Maker, your function `myActuation1` will be called and the message (actual data) will be forwarded to it as an argument.  
 In this case, if your device receives a string value `Hello there!` on asset `your-asset-1`, the received message will be printed via Serial and if it receives value `true` on asset `your-asset-2`, the LED will be turned on. (You would change LED_PIN to a real pin on your board).
 
 > You can call `setActuationCallback` anywhere in your sketch and it will add a new Actuation Callback.
@@ -434,10 +434,11 @@ void setup() {
 
 # Notes
 - This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/)
-- The PubSubClient library is included with the AllThingsTalk Arduino SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino SDK is made easier and the version of PubSubClient is guaranteed to be compatible.
-- Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time. Try to use `millis()` instead of `delay()` when possible.
+- The PubSubClient library is included with the AllThingsTalk Arduino SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino SDK is made easier and the version of PubSubClient is guaranteed to be compatible.  
+This does not interfere with other instances of PubSubClient you might have in your Arduino libraries.
+- Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
 - Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` way too often. In this case, it is okay to use `delay()` for about 5 to 50 milliseconds (see what works for you) in order to avoid this issue.
-- Receiving **Objects** or **Arrays** is not currently supported. Support is planned in next release.
+- Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in next release.
 - This library has been tested and confirmed to work with:
     - Arduino 1.8.9
     - PubSubClient 2.7.0 (Included)
