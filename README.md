@@ -105,7 +105,7 @@ auto device = Device(wifiCreds, deviceCreds);
 The connection defaults to [AllThingsTalk Maker](https://maker.allthingstalk.com/), but in case you're using a different [AllThingsTalk space](https://www.allthingstalk.com/spaces), you can define your API Endpoint by adding another argument to DeviceConfig, as shown below:
 
 ```cpp
-auto deviceCreds = DeviceConfig("Your-Device-ID", "Your-Device-Token", "your.api.endpoint");
+auto deviceCreds = DeviceConfig("Your-Device-ID", "Your-Device-Token", "your-space.allthingstalk.io");
 ```
 
 ## Maintaining Connection
