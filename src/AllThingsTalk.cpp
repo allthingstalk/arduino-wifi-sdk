@@ -222,6 +222,8 @@ void Device::init() {
     debugVerbose(randValue);
 
     // Print out the Device ID and Device Token
+    debugVerbose("API Endpoint:", ' ');
+    debugVerbose(deviceCreds->getHostname());
     debugVerbose("Device ID:", ' ');
     debugVerbose(deviceCreds->getDeviceId());
     debugVerbose("Device Token:", ' ');
@@ -229,6 +231,8 @@ void Device::init() {
 
     // Set MQTT Connection Parameters
     client.setServer(deviceCreds->getHostname(), 1883);
+    debug("MQTT Connection Built Hostname:", ' ');
+    debug(deviceCreds->getHostname());
     if (callbackEnabled == true) {
         client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
     }

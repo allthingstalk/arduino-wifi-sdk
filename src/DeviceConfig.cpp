@@ -5,6 +5,12 @@ DeviceConfig::DeviceConfig(const char *deviceId, const char *deviceToken) {
     setDeviceToken(deviceToken);
 }
 
+DeviceConfig::DeviceConfig(const char *deviceId, const char *deviceToken, const char *apiHostname) {
+    setDeviceId(deviceId);
+    setDeviceToken(deviceToken);
+    setHostname(apiHostname);
+}
+
 void DeviceConfig::setDeviceId(const char *deviceId) {
     this->deviceId = deviceId;
 }

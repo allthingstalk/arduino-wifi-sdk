@@ -27,6 +27,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
   * [Board Support](#board-support)  
 * [Connecting](#connecting)
   * [Defining Credentials](#defining-credentials)
+    * [Custom AllThingsTalk Space](#custom-allthingstalk-space)
   * [Maintaining Connection](#maintaining-connection)
   * [Connecting and Disconnecting](#connecting-and-disconnecting)
   * [Connection LED](#connection-led)
@@ -95,8 +96,17 @@ auto device = Device(wifiCreds, deviceCreds);
 
 > To get your Device ID and Device Token, go to your [AllThingsTalk Maker](https://maker.allthingstalk.com) devices, choose your device and click “*Settings*”, then choose “*Authentication*” and copy "Device ID" and “Device Tokens” values.
 
-
 > From here and on, this part of the code won’t be shown in the examples below as it’s assumed you already have it.
+
+### Custom AllThingsTalk Space
+
+> If you don't know what Spaces are, you can skip this part.
+
+The connection defaults to [AllThingsTalk Maker](https://maker.allthingstalk.com/), but in case you're using a different [AllThingsTalk space](https://www.allthingstalk.com/spaces), you can define your API Endpoint by adding another argument to DeviceConfig, as shown below:
+
+```cpp
+auto deviceCreds = DeviceConfig("Your-Device-ID", "Your-Device-Token", "your.api.endpoint");
+```
 
 ## Maintaining Connection
 
