@@ -231,7 +231,6 @@ void Device::init() {
 
     // Set MQTT Connection Parameters
     client.setServer(deviceCreds->getHostname(), 1883);
-    debug("MQTT Connection Built Hostname:", ' ');
     debug(deviceCreds->getHostname());
     if (callbackEnabled == true) {
         client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
