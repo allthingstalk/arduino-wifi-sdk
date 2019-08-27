@@ -59,6 +59,7 @@ char mqttId[256]; // Variable for saving generated client ID
 bool callbackEnabled = true; // Variable for checking if callback is enabled
 
 // WiFi Signal Reporting Parameters
+char* wifiSignalAsset = "wifi-signal";
 bool rssiReporting = true; // Default value for WiFi Signal Reporting
 int rssiReportInterval = 300; // Default interval (seconds) for WiFi Signal Reporting
 unsigned long rssiPrevTime;
@@ -320,9 +321,10 @@ void Device::connectAllThingsTalk() {
                     snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
                     client.subscribe(command_topic);
                 }
-                debug("Connected to AllThingsTalk!");
                 disconnectedAllThingsTalk = false;
                 fadeLedStop();
+                debug("Connected to AllThingsTalk!");
+                if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
             } else {
                 debug("Failed to connect to AllThingsTalk. Reason:", ' ');
                 switch (client.state()) {
@@ -434,7 +436,7 @@ void Device::maintainAllThingsTalk() {
 void Device::reportWiFiSignal() {
     if (rssiReporting && WiFi.status() == WL_CONNECTED) {
         if (millis() - rssiPrevTime >= rssiReportInterval*1000) {
-            send("wifi-signal", wifiSignal());
+            send(wifiSignalAsset, wifiSignal());
             rssiPrevTime = millis();
         }
     }
