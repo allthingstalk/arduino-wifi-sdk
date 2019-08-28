@@ -335,7 +335,7 @@ void Device::connectAllThingsTalk() {
                         debug("Network connection was broken");
                         break;
                     case -2:
-                        debug("Network connection failed");
+                        debug("Network connection failed. This is a general error, but maybe check your credentials for AllThingsTalk");
                         break;
                     case -1:
                         debug("Client disconnected cleanly (intentionally)");
