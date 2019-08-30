@@ -191,9 +191,22 @@ void Device::debugPort(Stream &debugSerial, bool verbose) {
     
 }
 
+// Generate Random MQTT ID - If two same IDs are on one broker, the connection drops
+void Device::generateRandomID() {
+    randomSeed(analogRead(0));
+    long randValue = random(2147483647);
+    snprintf(mqttId, sizeof mqttId, "%s%dl", "arduino-", randValue);
+    debugVerbose("Generated Unique ID for this Device:", ' ');
+    debugVerbose("arduino", '-');
+    debugVerbose(randValue);
+}
+
 // Initialization of everything. Run in setup(), only after defining everything else.
 void Device::init() {
+    // Start flashing the Connection LED
     fadeLed();
+    
+    // Print out information about Connection LED
     if (ledEnabled == false) {
         debug("Connection LED: Disabled");
     } else {
@@ -204,6 +217,7 @@ void Device::init() {
         debugVerbose("as it's used for Connection LED");
     }
     
+    // Print out information about WiFi Signal Reporting
     if (rssiReporting == false) {
         debug("WiFi Signal Reporting: Disabled");
     } else {
@@ -214,13 +228,8 @@ void Device::init() {
         debugVerbose("To read WiFi Strength, create a Sensor asset 'wifi-signal' of type 'String' on your AllThingsTalk Maker");
     }
 
-    // Generate Random MQTT ID - If two same IDs are on one broker, the connection drops
-    randomSeed(analogRead(0));
-    long randValue = random(2147483647);
-    snprintf(mqttId, sizeof mqttId, "%s%dl", "arduino-", randValue);
-    debugVerbose("Generated Unique ID for this Device:", ' ');
-    debugVerbose("arduino", '-');
-    debugVerbose(randValue);
+    // Generate MQTT ID
+    generateRandomID();
 
     // Print out the Device ID and Device Token
     debugVerbose("API Endpoint:", ' ');
@@ -237,6 +246,7 @@ void Device::init() {
         client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
     }
     
+    // Connect to WiFi and AllThingsTalk
     connect();
 }
 
@@ -506,9 +516,9 @@ bool Device::setActuationCallback(String asset, void (*actuationCallback)(String
 
 // Actual saving of added callbacks
 bool Device::tryAddActuationCallback(String asset, void (*actuationCallback), int actuationCallbackArgumentType) {
-   if (actuationCallbackCount > maximumActuations) {
+   if (actuationCallbackCount >= maximumActuations) {
        debug("");
-       debug("You've added too many actuations. The maximum is ", ' ');
+       debug("You've added too many actuations. The maximum is", ' ');
        debug(maximumActuations);
        return false;
    }

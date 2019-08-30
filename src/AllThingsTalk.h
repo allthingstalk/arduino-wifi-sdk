@@ -86,6 +86,7 @@ private:
     Stream *debugSerial;
     template<typename T> void debug(T message, char separator = '\n');
     template<typename T> void debugVerbose(T message, char separator = '\n');
+    void generateRandomID();
     void fadeLed();
     void fadeLedStop();
     void maintainWiFi();
