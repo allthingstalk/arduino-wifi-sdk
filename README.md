@@ -94,9 +94,43 @@ auto deviceCreds = DeviceConfig("Your-Device-ID","Your-Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
 ```
 
-> To get your Device ID and Device Token, go to your [AllThingsTalk Maker](https://maker.allthingstalk.com) devices, choose your device and click “*Settings*”, then choose “*Authentication*” and copy "Device ID" and “Device Tokens” values.
+> To get your **Device ID** and **Device Token**, go to your [AllThingsTalk Maker](https://maker.allthingstalk.com) devices, choose your device and click “*Settings*”, then choose “*Authentication*” and copy "Device ID" and “Device Tokens” values.
 
 > From here and on, this part of the code won’t be shown in the examples below as it’s assumed you already have it.
+
+### Separating Credentials (keys.h)
+
+In case you share your Arduino sketch often (either via GitHub or other means), you should consider creating a "**keys.h**" file that contains your credentials.  
+This way, when you share your sketch, your credentials would remain private because you'd only share your Arduino sketch. Another advantage is that whoever downloads your sketch could have their own **keys.h** file, thus the sketch would immediately work on their computer.
+
+First, simply create a new file in the same directory as your Arduino sketch, name it "**keys.h**" and copy/paste the following into the file:
+```cpp
+// Save this as "keys.h" in the same folder as your Arduino Sketch
+#ifndef KEYS_H
+#define KEYS_H
+
+const char* WIFI_SSID     = "Your-WiFi-Network-Name";
+const char* WIFI_PASSWORD = "Your-WiFi-Password";
+const char* DEVICE_ID     = "Your-Device-ID";
+const char* DEVICE_TOKEN  = "Your-Device-Token";
+
+#endif
+```
+
+> This file would be loaded from your Arduino sketch (include it using **#include "keys.h"**) 
+
+Then, change the top of your sketch to this:
+
+```cpp
+#include <AllThingsTalk.h>
+#include "keys.h"
+auto wifiCreds = WifiCredentials(WIFI_SSID, WIFI_PASSWORD);
+auto deviceCreds = DeviceConfig(DEVICE_ID, DEVICE_TOKEN);
+auto device = Device(wifiCreds, deviceCreds);
+```
+So, now you've included the "**keys.h**" file and changed the credentials to variables that will be loaded from that file.
+
+> The "SendJsonSimplestSeparateCredentials" SDK example demonstrates the use of "keys.h"
 
 ### Custom AllThingsTalk Space
 
@@ -105,7 +139,7 @@ auto device = Device(wifiCreds, deviceCreds);
 The connection defaults to [AllThingsTalk Maker](https://maker.allthingstalk.com/), but in case you're using a different [AllThingsTalk space](https://www.allthingstalk.com/spaces), you can define your API Endpoint by adding another argument to DeviceConfig, as shown below:
 
 ```cpp
-auto deviceCreds = DeviceConfig("Your-Device-ID", "Your-Device-Token", "your-space.allthingstalk.io");
+auto deviceCreds = DeviceConfig("Your-Device-ID", "Your-Device-Token", "your.api.endpoint");
 ```
 
 ## Maintaining Connection
