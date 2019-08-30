@@ -28,7 +28,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
   * [Board Support](#board-support)  
 * [Connecting](#connecting)
   * [Defining Credentials](#defining-credentials)
-    * [Separating Credentials (keys.h)](#separating-credentials-keys.h)
+    * [Separating Credentials (keys.h)](#separating-credentials)
     * [Custom AllThingsTalk Space](#custom-allthingstalk-space)
   * [Maintaining Connection](#maintaining-connection)
   * [Connecting and Disconnecting](#connecting-and-disconnecting)
@@ -100,7 +100,7 @@ auto device = Device(wifiCreds, deviceCreds);
 
 > From here and on, this part of the code won’t be shown in the examples below as it’s assumed you already have it.
 
-### Separating Credentials (keys.h)
+### Separating Credentials
 
 In case you share your Arduino sketch often (either via GitHub or other means), you should consider creating a "**keys.h**" file that contains your credentials.  
 This way, when you share your sketch, your credentials would remain private because you'd only share the Arduino sketch. Another advantage is that whoever downloads your sketch could have their own **keys.h** file, thus the sketch would immediately work on their computer.
