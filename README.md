@@ -1,4 +1,5 @@
 
+
 # AllThingsTalk Arduino SDK v2
 
 AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
@@ -27,6 +28,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
   * [Board Support](#board-support)  
 * [Connecting](#connecting)
   * [Defining Credentials](#defining-credentials)
+    * [Separating Credentials (keys.h)](#separating-credentials-keys.h)
     * [Custom AllThingsTalk Space](#custom-allthingstalk-space)
   * [Maintaining Connection](#maintaining-connection)
   * [Connecting and Disconnecting](#connecting-and-disconnecting)
@@ -85,7 +87,7 @@ The library takes care about initialization and maintaining WiFi and connection 
 
 ## Defining Credentials
 
-At the beginning of your sketch, make sure to include this library and define your credentials:
+At the beginning of your sketch (before `setup()`), make sure to include this library and define your credentials:
 
 ```cpp
 #include <AllThingsTalk.h>
@@ -101,11 +103,12 @@ auto device = Device(wifiCreds, deviceCreds);
 ### Separating Credentials (keys.h)
 
 In case you share your Arduino sketch often (either via GitHub or other means), you should consider creating a "**keys.h**" file that contains your credentials.  
-This way, when you share your sketch, your credentials would remain private because you'd only share your Arduino sketch. Another advantage is that whoever downloads your sketch could have their own **keys.h** file, thus the sketch would immediately work on their computer.
+This way, when you share your sketch, your credentials would remain private because you'd only share the Arduino sketch. Another advantage is that whoever downloads your sketch could have their own **keys.h** file, thus the sketch would immediately work on their computer.
+
+> Check the *SendJsonSimplestSeparateCredentials* example included in this SDK to see this in action.
 
 First, create a new file in the same directory as your Arduino sketch, name it **keys.h** and copy/paste the following into the file:
 ```cpp
-// Save as "keys.h" in the same folder as your Arduino Sketch
 #ifndef KEYS_H
 #define KEYS_H
 
@@ -117,20 +120,18 @@ const char* DEVICE_TOKEN  = "Your-Device-Token";
 #endif
 ```
 
-> This file would be loaded from your Arduino sketch (include it using **#include "keys.h"**) 
-
 Then, make sure to change the top of your sketch to include **keys.h** and use the variables defined in it:
 
 ```cpp
 #include <AllThingsTalk.h>
-#include "keys.h"
+#include "keys.h" // Include our newly created file
 auto wifiCreds = WifiCredentials(WIFI_SSID, WIFI_PASSWORD);
 auto deviceCreds = DeviceConfig(DEVICE_ID, DEVICE_TOKEN);
 auto device = Device(wifiCreds, deviceCreds);
 ```
-So, now you've included the "**keys.h**" file and changed the credentials to variables that will be loaded from that file.
+So, now you've included the "**keys.h**" file and changed the credentials to variables that will be loaded from that file. Done.
 
-> The "SendJsonSimplestSeparateCredentials" SDK example demonstrates the use of "keys.h"
+> If you're going to put your sketch to GitHub, make sure to [gitignore](https://help.github.com/en/articles/ignoring-files) the **keys.h** file
 
 ### Custom AllThingsTalk Space
 
@@ -161,7 +162,7 @@ It will also show connection status using the [built-in LED](#connection-led) of
 ## Connecting and Disconnecting
 
 Connection is automatically established once `init()` is executed.  
-However, if you wish to disconnect and/or connect from either WiFi or AllThingsTalk during device operation, you can do that by using these methods anywhere in your sketch:
+However, if you wish to disconnect and/or connect from either WiFi or AllThingsTalk during device operation, you can do that by using these methods **anywhere** in your sketch:
 
 | **Method**                 | **Operation**                                                                 |
 | -------------------------- | ----------------------------------------------------------------------------- |
@@ -217,7 +218,7 @@ void setup() {
 
 This feature can also be defined as `connectionLed(true, your_led_pin)`
 
-> Custom Connection LED pin needs to be defined before `init()` and cannot be changed during operation.
+> Custom Connection LED pin needs to be defined before `init()` and **cannot** be changed during operation.
 
 
 ### Disable Connection LED
@@ -231,7 +232,7 @@ void setup() {
   device.init();
 }
 ```
-> Unlike defining the Connection LED Pin, you **can** run  `connectionLed(false)` and `connectionLed(true)` anywhere in your sketch, in case you need to enable/disable it during operation.
+> Unlike defining the Connection LED Pin, you **can** run  `connectionLed(false)` and `connectionLed(true)` **anywhere** in your sketch, in case you need to enable/disable it during operation.
 
 ## WiFi Signal Reporting
 
@@ -256,7 +257,7 @@ void setup() {
 
 This feature can also be defined as `wifiSignalReporting(true, seconds)`  
 
-> You can call `wifiSignalReporting` anywhere in your sketch if you wish to change its values during operation.
+> You can call `wifiSignalReporting` **anywhere** in your sketch if you wish to change its values during operation.
 
 ### WiFi Signal Strength On-Demand
 
@@ -269,7 +270,7 @@ void setup() {
   device.init();
 }
 void loop() {
-  Serial.println(wifiSignal());
+  Serial.println(wifiSignal()); // Prints WiFi signal to serial
 }
 ```
 
@@ -284,7 +285,7 @@ void setup() {
 }
 ```
 
-> You can enable and disable WiFi Signal Reporting anywhere in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
+> You can enable and disable WiFi Signal Reporting **anywhere** in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
 
 
 # Sending Data
