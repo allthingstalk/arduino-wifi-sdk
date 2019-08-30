@@ -1,21 +1,19 @@
 /* AllThingsTalk Arduino SDK
  * https://github.com/allthingstalk/arduino-sdk-v2
  *
- * About this example: 
+ * About this example:
  * Shows the minimal code required to connect to Wi-Fi and send a message to your AllThingsTalk Maker.
  * Sends a "Hello World!" message upon boot.
  * Uses the "keys.h" file that separates credentials from the sketch.
- * 
  * 
  * Notes:
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
  * - Create a Sensor asset of type String on your AllThingsTalk Maker
  * - Change the following things in this example: 
  *   Sensor-Asset
- * - Edit the "keys.h" file and enter your credentials there. Find the keys.h file here:
- *   Your Arduino libraries > AllThingsTalk Arduino SDK > Examples > SendJsonSimplestSeparateCredentials > keys.h
+ * - Edit the "keys.h" file (second tab of your Arduino IDE) and enter your credentials there.
  */
-
+ 
 #include <AllThingsTalk.h>
 
 auto wifiCreds   = WifiCredentials(WIFI_SSID, WIFI_PASSWORD); // Edit these in the "keys.h" file
