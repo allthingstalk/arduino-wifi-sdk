@@ -103,9 +103,9 @@ auto device = Device(wifiCreds, deviceCreds);
 In case you share your Arduino sketch often (either via GitHub or other means), you should consider creating a "**keys.h**" file that contains your credentials.  
 This way, when you share your sketch, your credentials would remain private because you'd only share your Arduino sketch. Another advantage is that whoever downloads your sketch could have their own **keys.h** file, thus the sketch would immediately work on their computer.
 
-First, simply create a new file in the same directory as your Arduino sketch, name it "**keys.h**" and copy/paste the following into the file:
+First, create a new file in the same directory as your Arduino sketch, name it **keys.h** and copy/paste the following into the file:
 ```cpp
-// Save this as "keys.h" in the same folder as your Arduino Sketch
+// Save as "keys.h" in the same folder as your Arduino Sketch
 #ifndef KEYS_H
 #define KEYS_H
 
@@ -119,7 +119,7 @@ const char* DEVICE_TOKEN  = "Your-Device-Token";
 
 > This file would be loaded from your Arduino sketch (include it using **#include "keys.h"**) 
 
-Then, change the top of your sketch to this:
+Then, make sure to change the top of your sketch to include **keys.h** and use the variables defined in it:
 
 ```cpp
 #include <AllThingsTalk.h>

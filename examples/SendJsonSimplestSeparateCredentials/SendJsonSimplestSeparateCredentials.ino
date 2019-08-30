@@ -15,6 +15,7 @@
  */
  
 #include <AllThingsTalk.h>
+#include "keys.h"
 
 auto wifiCreds   = WifiCredentials(WIFI_SSID, WIFI_PASSWORD); // Edit these in the "keys.h" file
 auto deviceCreds = DeviceConfig(DEVICE_ID, DEVICE_TOKEN);     // Edit these in the "keys.h" file
