@@ -1,5 +1,6 @@
 
 
+
 # AllThingsTalk Arduino SDK v2
 
 AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
@@ -238,6 +239,10 @@ void setup() {
 
 This library automatically reports WiFi Signal Strength to your AllThingsTalk Maker every 5 minutes by default.  
 The strength is presented as `Excellent`, `Good`, `Decent`, `Bad` and `Horrible`, depending on the quality of your WiFi Connection.
+
+>If your device reports to AllThingsTalk only based on some physical state change and you don't see any updates for some time, you don't have a way of knowing if the device unexpectedly went offline, since you'd just think the state didn't change.
+> Fortunately, a side-effect of WiFi Signal Reporting is that you can use it with AllThingsTalk **Watchdog**, so you can be sure your device went offline for some reason if it doesn't report back at the predefined WiFi Signal Reporting interval.
+> Setup Watchdog by going to your AllThingsTalk Maker > *Your Device* > Settings > Watchdog 
 
 ### Showing WiFi Signal Strength
 
