@@ -32,7 +32,6 @@
 #include "PubSubClient.h"
 #include <ArduinoJson.h>
 
-
 #ifdef ESP8266
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
@@ -44,36 +43,36 @@ PubSubClient client(wifiClient);
 Ticker fader;
 #define UP 1
 #define DOWN 0
-bool ledEnabled = true;    // Default state for Connection LED
-int connectionLedPin = 2;  // Default Connection LED Pin for ESP8266
-const int minPWM = 0;      // Minimum PWM
-const int maxPWM = 1023;   // Maximum PWM
-byte fadeIncrement = 5;    // How smooth to fade
-int fadeInterval = 3;      // Interval between fading steps
-byte fadeDirection = UP;   // Initial value
-int fadeValue = 1023;      // Initial value
-unsigned long previousFadeMillis; // millis() timing Variable, just for fading
+bool _ledEnabled      = true;    // Default state for Connection LED
+int _connectionLedPin = 2;       // Default Connection LED Pin for ESP8266
+const int _minPWM     = 0;       // Minimum PWM
+const int _maxPWM     = 1023;    // Maximum PWM
+byte _fadeIncrement   = 5;       // How smooth to fade
+int _fadeInterval     = 3;       // Interval between fading steps
+byte _fadeDirection   = UP;      // Initial value
+int _fadeValue        = 1023;    // Initial value
+unsigned long _previousFadeMillis; // millis() timing Variable, just for fading
 
 // MQTT Parameters
-char mqttId[256]; // Variable for saving generated client ID
-bool callbackEnabled = true; // Variable for checking if callback is enabled
+char _mqttId[256];               // Variable for saving generated client ID
+bool _callbackEnabled = true;    // Variable for checking if callback is enabled
 
 // WiFi Signal Reporting Parameters
-char* wifiSignalAsset = "wifi-signal";
-bool rssiReporting = true; // Default value for WiFi Signal Reporting
-int rssiReportInterval = 300; // Default interval (seconds) for WiFi Signal Reporting
-unsigned long rssiPrevTime;
+char* _wifiSignalAsset   = "wifi-signal"; // Asset name on AllThingsTalk for WiFi Signal Reporting
+bool _rssiReporting      = true; // Default value for WiFi Signal Reporting
+int _rssiReportInterval  = 300;  // Default interval (seconds) for WiFi Signal Reporting
+unsigned long _rssiPrevTime;     // Remembers last time WiFi Signal was reported
 
 // Debug parameters
-bool debugVerboseEnabled = false;
+bool _debugVerboseEnabled = false;
 
 // Connection parameters
-bool disconnectedWiFi; // True when user intentionally disconnects
-bool disconnectedAllThingsTalk; // True when user intentionally disconnects
-String wifiHostname; // Hostname itself
-bool wifiHostnameSet = false; // For tracking if hostname is set
+bool _disconnectedWiFi;          // True when user intentionally disconnects
+bool _disconnectedAllThingsTalk; // True when user intentionally disconnects
+String _wifiHostname;            // WiFi Hostname itself
+bool _wifiHostnameSet = false;   // For tracking if WiFi hostname is set
 
-
+// Constructor
 Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {
     this->deviceCreds = &deviceCreds;
     this->wifiCreds = &wifiCreds;
@@ -91,7 +90,7 @@ template<typename T> void Device::debug(T message, char separator) {
 
 // Serial print (verbose debugging)
 template<typename T> void Device::debugVerbose(T message, char separator) {
-    if (debugVerboseEnabled) {
+    if (_debugVerboseEnabled) {
         if (debugSerial) {
             debugSerial->print(message);
             if (separator) {
@@ -103,27 +102,27 @@ template<typename T> void Device::debugVerbose(T message, char separator) {
 
 // Connection Signal LED
 void Device::fadeLed() {
-    if (ledEnabled == true) {
+    if (_ledEnabled == true) {
         if (fader.active() == false) {
             fader.attach_ms(1, std::bind(&Device::fadeLed, this));
         } else {
             unsigned long thisMillis = millis();
-            if (thisMillis - previousFadeMillis >= fadeInterval) {
-                if (fadeDirection == UP) {
-                    fadeValue = fadeValue + fadeIncrement;
-                    if (fadeValue >= maxPWM) {
-                        fadeValue = maxPWM;
-                        fadeDirection = DOWN;
+            if (thisMillis - _previousFadeMillis >= _fadeInterval) {
+                if (_fadeDirection == UP) {
+                    _fadeValue = _fadeValue + _fadeIncrement;
+                    if (_fadeValue >= _maxPWM) {
+                        _fadeValue = _maxPWM;
+                        _fadeDirection = DOWN;
                     }
             } else {
-                fadeValue = fadeValue - fadeIncrement;
-                if (fadeValue <= minPWM) {
-                    fadeValue = minPWM;
-                    fadeDirection = UP;
+                _fadeValue = _fadeValue - _fadeIncrement;
+                if (_fadeValue <= _minPWM) {
+                    _fadeValue = _minPWM;
+                    _fadeDirection = UP;
                 }
             }
-            analogWrite(connectionLedPin, fadeValue);
-            previousFadeMillis = thisMillis;
+            analogWrite(_connectionLedPin, _fadeValue);
+            _previousFadeMillis = thisMillis;
             }
         }
     }
@@ -131,47 +130,47 @@ void Device::fadeLed() {
 
 // Turn off Connection Signal LED
 void Device::fadeLedStop() {
-    if (ledEnabled == true) {
+    if (_ledEnabled == true) {
         fader.detach();
-        while (fadeValue <= maxPWM) {
-            delay(fadeInterval);
-            fadeValue = fadeValue + fadeIncrement;
-            analogWrite(connectionLedPin, fadeValue);
+        while (_fadeValue <= _maxPWM) {
+            delay(_fadeInterval);
+            _fadeValue = _fadeValue + _fadeIncrement;
+            analogWrite(_connectionLedPin, _fadeValue);
         }
-        fadeValue = maxPWM;
+        _fadeValue = _maxPWM;
         for (int i=0; i<=1; i++) {
             delay(100);
-            analogWrite(connectionLedPin, minPWM);
+            analogWrite(_connectionLedPin, _minPWM);
             delay(50);
-            analogWrite(connectionLedPin, maxPWM);
+            analogWrite(_connectionLedPin, _maxPWM);
         }
     }
 }
 
 void Device::wifiSignalReporting(bool state) {
-    rssiReporting = state;
+    _rssiReporting = state;
 }
 
 void Device::wifiSignalReporting(int time) {
-    rssiReportInterval = time;
+    _rssiReportInterval = time;
 }
 
 void Device::wifiSignalReporting(bool state, int time) {
-    rssiReportInterval = time;
-    rssiReporting = state;
+    _rssiReportInterval = time;
+    _rssiReporting = state;
 }
 
 void Device::connectionLed(bool state) {
-    ledEnabled = state;
+    _ledEnabled = state;
 }
 
 void Device::connectionLed(int ledPin) {
-    connectionLedPin = ledPin;
+    _connectionLedPin = ledPin;
 }
 
 void Device::connectionLed(bool state, int ledPin) {
-    connectionLedPin = ledPin;
-    ledEnabled = state;
+    _connectionLedPin = ledPin;
+    _ledEnabled = state;
 }
 
 void Device::debugPort(Stream &debugSerial) {
@@ -182,7 +181,7 @@ void Device::debugPort(Stream &debugSerial) {
 }
 
 void Device::debugPort(Stream &debugSerial, bool verbose) {
-    debugVerboseEnabled = verbose;
+    _debugVerboseEnabled = verbose;
     this->debugSerial = &debugSerial;
     debug("");
     debug("------------- AllThingsTalk SDK Serial Begin -------------");
@@ -195,7 +194,7 @@ void Device::debugPort(Stream &debugSerial, bool verbose) {
 void Device::generateRandomID() {
     randomSeed(analogRead(0));
     long randValue = random(2147483647);
-    snprintf(mqttId, sizeof mqttId, "%s%dl", "arduino-", randValue);
+    snprintf(_mqttId, sizeof _mqttId, "%s%dl", "arduino-", randValue);
     debugVerbose("Generated Unique ID for this Device:", ' ');
     debugVerbose("arduino", '-');
     debugVerbose(randValue);
@@ -207,23 +206,23 @@ void Device::init() {
     fadeLed();
     
     // Print out information about Connection LED
-    if (ledEnabled == false) {
+    if (_ledEnabled == false) {
         debug("Connection LED: Disabled");
     } else {
         debug("Connection LED: Enabled - GPIO", ' ');
-        debug(connectionLedPin);
+        debug(_connectionLedPin);
         debugVerbose("Please don't use GPIO", ' ');
-        debugVerbose(connectionLedPin, ' ');
+        debugVerbose(_connectionLedPin, ' ');
         debugVerbose("as it's used for Connection LED");
     }
     
     // Print out information about WiFi Signal Reporting
-    if (rssiReporting == false) {
+    if (_rssiReporting == false) {
         debug("WiFi Signal Reporting: Disabled");
     } else {
         debug("WiFi Signal Reporting: Enabled");
         debugVerbose("WiFi Signal Strength will be published every", ' ');
-        debugVerbose(rssiReportInterval, ' ');
+        debugVerbose(_rssiReportInterval, ' ');
         debugVerbose("seconds");
         debugVerbose("To read WiFi Strength, create a Sensor asset 'wifi-signal' of type 'String' on your AllThingsTalk Maker");
     }
@@ -242,7 +241,7 @@ void Device::init() {
     // Set MQTT Connection Parameters
     client.setServer(deviceCreds->getHostname(), 1883);
     debug(deviceCreds->getHostname());
-    if (callbackEnabled == true) {
+    if (_callbackEnabled == true) {
         client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
     }
     
@@ -252,11 +251,11 @@ void Device::init() {
 
 // Needs to be run in program loop in order to keep connections alive
 void Device::loop() {
-    if (!disconnectedWiFi) {
+    if (!_disconnectedWiFi) {
         if (WiFi.status() != WL_CONNECTED) {
             maintainWiFi();
         } else {
-            if (!disconnectedAllThingsTalk) {
+            if (!_disconnectedAllThingsTalk) {
                 if (!client.connected()) {
                     maintainAllThingsTalk();
                 } else if (client.connected()) {
@@ -284,10 +283,10 @@ void Device::connectWiFi() {
     if (WiFi.status() != WL_CONNECTED) {
         fadeLed();
         WiFi.mode(WIFI_STA);
-        if (wifiHostnameSet) {
-            WiFi.hostname(wifiHostname);
+        if (_wifiHostnameSet) {
+            WiFi.hostname(_wifiHostname);
             debugVerbose("WiFi Hostname:", ' ');
-            debugVerbose(wifiHostname);
+            debugVerbose(_wifiHostname);
         }
         debug("Connecting to WiFi:", ' ');
         debug(wifiCreds->getSsid(), '.');
@@ -299,7 +298,7 @@ void Device::connectWiFi() {
         debugVerbose(WiFi.localIP());
         debugVerbose("WiFi Signal:", ' ');
         debugVerbose(wifiSignal());
-        disconnectedWiFi = false;
+        _disconnectedWiFi = false;
     }
 }
 
@@ -307,15 +306,15 @@ void Device::disconnectWiFi() {
     if (WiFi.status() == WL_CONNECTED) {
         disconnectAllThingsTalk();
         WiFi.disconnect();
-        disconnectedWiFi = true;
+        _disconnectedWiFi = true;
         while (WiFi.status() == WL_CONNECTED) {}
         debug("Successfully Disconnected from WiFi");
     }
 }
 
 void Device::setHostname(String hostname) {
-    wifiHostname = hostname;
-    wifiHostnameSet = true;
+    _wifiHostname = hostname;
+    _wifiHostnameSet = true;
 }
 
 void Device::connectAllThingsTalk() {
@@ -324,17 +323,17 @@ void Device::connectAllThingsTalk() {
         connectWiFi();
         debug("Connecting to AllThingsTalk...");
         while (!client.connected()) {
-            if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
-                if (callbackEnabled == true) {
+            if (client.connect(_mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
+                if (_callbackEnabled == true) {
                     // Build the subscribe topic
                     char command_topic[256];
                     snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
                     client.subscribe(command_topic);
                 }
-                disconnectedAllThingsTalk = false;
+                _disconnectedAllThingsTalk = false;
                 fadeLedStop();
                 debug("Connected to AllThingsTalk!");
-                if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
+                if (_rssiReporting) send(_wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
             } else {
                 debug("Failed to connect to AllThingsTalk. Reason:", ' ');
                 switch (client.state()) {
@@ -381,7 +380,7 @@ void Device::connectAllThingsTalk() {
 void Device::disconnectAllThingsTalk() {
     if (client.connected()) {
         client.disconnect();
-        disconnectedAllThingsTalk = true;
+        _disconnectedAllThingsTalk = true;
         while (client.connected()) {}
         debug("Successfully Disconnected from AllThingsTalk");
     }
@@ -432,7 +431,7 @@ void Device::maintainWiFi() {
         debug(" WiFi Signal:", ' ');
         debug(wifiSignal());
         fadeLedStop();
-        disconnectedWiFi = false;
+        _disconnectedWiFi = false;
     }
 }
 
@@ -444,10 +443,10 @@ void Device::maintainAllThingsTalk() {
 
 // Called from loop; Reports wifi signal to ATTalk Maker at specified interval
 void Device::reportWiFiSignal() {
-    if (rssiReporting && WiFi.status() == WL_CONNECTED) {
-        if (millis() - rssiPrevTime >= rssiReportInterval*1000) {
-            send(wifiSignalAsset, wifiSignal());
-            rssiPrevTime = millis();
+    if (_rssiReporting && WiFi.status() == WL_CONNECTED) {
+        if (millis() - _rssiPrevTime >= _rssiReportInterval*1000) {
+            send(_wifiSignalAsset, wifiSignal());
+            _rssiPrevTime = millis();
         }
     }
 }
@@ -522,7 +521,7 @@ bool Device::tryAddActuationCallback(String asset, void (*actuationCallback), in
        debug(maximumActuations);
        return false;
    }
-    callbackEnabled = true;
+    _callbackEnabled = true;
     actuationCallbacks[actuationCallbackCount].asset = asset;
     actuationCallbacks[actuationCallbackCount].actuationCallback = actuationCallback;
     actuationCallbacks[actuationCallbackCount].actuationCallbackArgumentType = actuationCallbackArgumentType;
