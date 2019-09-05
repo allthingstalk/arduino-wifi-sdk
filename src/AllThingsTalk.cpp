@@ -28,6 +28,7 @@
 #include "AllThingsTalk.h"
 #include "Arduino.h"
 #include "CborPayload.h"
+#include "GeoLocation.h"
 #include "BinaryPayload.h"
 #include "PubSubClient.h"
 #include <ArduinoJson.h>
@@ -240,7 +241,6 @@ void Device::init() {
 
     // Set MQTT Connection Parameters
     client.setServer(deviceCreds->getHostname(), 1883);
-    debug(deviceCreds->getHostname());
     if (_callbackEnabled == true) {
         client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
     }
@@ -692,6 +692,10 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
         return;
     }
 }
+
+// void actuation(Location location) {
+    // Serial.println(location.latitude);
+// }
 
 // Send data as CBOR
 void Device::send(CborPayload &payload) {
