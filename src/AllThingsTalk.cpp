@@ -39,39 +39,7 @@
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
-
-// Connection Signal LED Parameters
 Ticker fader;
-#define UP 1
-#define DOWN 0
-bool _ledEnabled      = true;    // Default state for Connection LED
-int _connectionLedPin = 2;       // Default Connection LED Pin for ESP8266
-const int _minPWM     = 0;       // Minimum PWM
-const int _maxPWM     = 1023;    // Maximum PWM
-byte _fadeIncrement   = 5;       // How smooth to fade
-int _fadeInterval     = 3;       // Interval between fading steps
-byte _fadeDirection   = UP;      // Initial value
-int _fadeValue        = 1023;    // Initial value
-unsigned long _previousFadeMillis; // millis() timing Variable, just for fading
-
-// MQTT Parameters
-char _mqttId[256];               // Variable for saving generated client ID
-bool _callbackEnabled = true;    // Variable for checking if callback is enabled
-
-// WiFi Signal Reporting Parameters
-char* _wifiSignalAsset   = "wifi-signal"; // Asset name on AllThingsTalk for WiFi Signal Reporting
-bool _rssiReporting      = true; // Default value for WiFi Signal Reporting
-int _rssiReportInterval  = 300;  // Default interval (seconds) for WiFi Signal Reporting
-unsigned long _rssiPrevTime;     // Remembers last time WiFi Signal was reported
-
-// Debug parameters
-bool _debugVerboseEnabled = false;
-
-// Connection parameters
-bool _disconnectedWiFi;          // True when user intentionally disconnects
-bool _disconnectedAllThingsTalk; // True when user intentionally disconnects
-String _wifiHostname;            // WiFi Hostname itself
-bool _wifiHostnameSet = false;   // For tracking if WiFi hostname is set
 
 // Constructor
 Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {

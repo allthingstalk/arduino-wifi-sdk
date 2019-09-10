@@ -41,20 +41,25 @@ public:
     //void execute(JsonVariant variant);
 };
 
+
 class Device {
 public:
     Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds);
     // Initialization
     void init();
+    
     // Maintaining Connection
     void loop();
+    
     // Debug
     void debugPort(Stream &debugSerial);
     void debugPort(Stream &debugSerial, bool verbose);
+    
     // Sending Data
     void send(CborPayload &payload);
     void send(BinaryPayload &payload);
     template<typename T> void send(char *asset, T payload);
+    
     // Connection
     void connect();
     void disconnect();
@@ -63,15 +68,18 @@ public:
     void disconnectWiFi();
     void connectAllThingsTalk();
     void disconnectAllThingsTalk();
+    
     // Connection LED
     void connectionLed(bool);
     void connectionLed(int ledPin);
     void connectionLed(bool state, int ledPin);
+    
     // WiFi Signal Reporting
     void wifiSignalReporting(bool);
     void wifiSignalReporting(int time);
     void wifiSignalReporting(bool state, int time);
     String wifiSignal();
+    
     // Callbacks (Receiving Data)
     bool setActuationCallback(String asset, void (*actuationCallback)(bool payload));
     bool setActuationCallback(String asset, void (*actuationCallback)(int payload));
@@ -93,11 +101,45 @@ private:
     void maintainAllThingsTalk();
     void reportWiFiSignal();
     void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length);
+    
+    // Actuations / Callbacks
     static const int maximumActuations = 32;
     ActuationCallback actuationCallbacks[maximumActuations];
     int actuationCallbackCount = 0;
     bool tryAddActuationCallback(String asset, void *actuationCallback, int actuationCallbackArgumentType);
     ActuationCallback *getActuationCallbackForAsset(String asset);
+    
+    // Connection Signal LED Parameters
+    #define UP 1
+    #define DOWN 0
+    bool _ledEnabled                  = true;    // Default state for Connection LED
+    int _connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
+    static const int _minPWM          = 0;       // Minimum PWM
+    static const int _maxPWM          = 1023;    // Maximum PWM
+    static const byte _fadeIncrement  = 5;       // How smooth to fade
+    static const int _fadeInterval    = 3;       // Interval between fading steps
+    byte _fadeDirection               = UP;      // Initial value
+    int _fadeValue                    = 1023;    // Initial value
+    unsigned long _previousFadeMillis;           // millis() timing Variable, just for fading
+
+    // MQTT Parameters
+    char _mqttId[256];                      // Variable for saving generated client ID
+    bool _callbackEnabled = true;           // Variable for checking if callback is enabled
+
+    // WiFi Signal Reporting Parameters
+    char* _wifiSignalAsset   = "wifi-signal"; // Asset name on AllThingsTalk for WiFi Signal Reporting
+    bool _rssiReporting      = true;        // Default value for WiFi Signal Reporting
+    int _rssiReportInterval  = 300;         // Default interval (seconds) for WiFi Signal Reporting
+    unsigned long _rssiPrevTime;            // Remembers last time WiFi Signal was reported
+
+    // Debug parameters
+    bool _debugVerboseEnabled = false;
+
+    // Connection parameters
+    bool _disconnectedWiFi;                 // True when user intentionally disconnects
+    bool _disconnectedAllThingsTalk;        // True when user intentionally disconnects
+    String _wifiHostname;                   // WiFi Hostname itself
+    bool _wifiHostnameSet = false;          // For tracking if WiFi hostname is set
 };
 
 #endif
