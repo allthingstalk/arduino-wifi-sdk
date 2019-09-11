@@ -1,20 +1,17 @@
-
-
-
 # AllThingsTalk Arduino SDK v2
 
-AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
+AllThingsTalk Arduino Library for WiFi Devices - makes connecting devices with [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
 
 
-Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello World!` to your AllThingsTalk Maker:
+Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello World!` to a String asset on AllThingsTalk Maker:
 
 ```cpp
 #include <AllThingsTalk.h>
 auto wifiCreds = WifiCredentials("WiFi-SSID", "WiFi-Password");
 auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
-void setup() device.init(); device.send("Sensor-Asset", "Hello World!");
-void loop() device.loop();
+void setup() { device.init(); device.send("Your-Sensor-Asset", "Hello World!"); }
+void loop() { device.loop(); }
 ```
 
 That’s how easy it is!
@@ -97,7 +94,7 @@ auto deviceCreds = DeviceConfig("Your-Device-ID","Your-Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
 ```
 
-> To get your **Device ID** and **Device Token**, go to your [AllThingsTalk Maker](https://maker.allthingstalk.com) devices, choose your device and click “*Settings*”, then choose “*Authentication*” and copy "Device ID" and “Device Tokens” values.
+> To get your **Device ID** and **Device Token**, go to your [AllThingsTalk Maker](https://maker.allthingstalk.com) devices, choose your device and click “*Settings*”, then choose “*Authentication*” and copy "Device ID" and a “Device Token”.
 
 > From here and on, this part of the code won’t be shown in the examples below as it’s assumed you already have it.
 
