@@ -41,11 +41,10 @@ public:
     //void execute(JsonVariant variant);
 };
 
-
 class Device {
 public:
     Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds);
-    // Initialization
+    // Initializations
     void init();
     
     // Maintaining Connection
@@ -64,7 +63,7 @@ public:
     void connect();
     void disconnect();
     void connectWiFi();
-    void setHostname(String hostname);
+    void setHostname(const char* hostname); // THIS IS STRING WHEN ESP8266
     void disconnectWiFi();
     void connectAllThingsTalk();
     void disconnectAllThingsTalk();
@@ -80,6 +79,9 @@ public:
     void wifiSignalReporting(bool state, int time);
     String wifiSignal();
     
+    // Callback saves for non-esp
+    static Device* instance;
+    
     // Callbacks (Receiving Data)
     bool setActuationCallback(String asset, void (*actuationCallback)(bool payload));
     bool setActuationCallback(String asset, void (*actuationCallback)(int payload));
@@ -91,16 +93,18 @@ public:
 private:
     WifiCredentials *wifiCreds;
     DeviceConfig *deviceCreds;
+    
     Stream *debugSerial;
     template<typename T> void debug(T message, char separator = '\n');
     template<typename T> void debugVerbose(T message, char separator = '\n');
+    
     void generateRandomID();
     void fadeLed();
     void fadeLedStop();
     void maintainWiFi();
     void maintainAllThingsTalk();
     void reportWiFiSignal();
-    void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length);
+    static void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length); // STATIC ZA MKR
     
     // Actuations / Callbacks
     static const int maximumActuations = 32;
@@ -114,6 +118,8 @@ private:
     #define DOWN 0
     bool _ledEnabled                  = true;    // Default state for Connection LED
     int _connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
+    bool schedulerActive              = false;   // Keep track of scheduler
+    bool supposedToFade               = false;   // Know if Connection LED is supposed to fade
     static const int _minPWM          = 0;       // Minimum PWM
     static const int _maxPWM          = 1023;    // Maximum PWM
     static const byte _fadeIncrement  = 5;       // How smooth to fade
@@ -138,7 +144,9 @@ private:
     // Connection parameters
     bool _disconnectedWiFi;                 // True when user intentionally disconnects
     bool _disconnectedAllThingsTalk;        // True when user intentionally disconnects
-    String _wifiHostname;                   // WiFi Hostname itself
+    // CHANGE FROM STRING FOR MKR, USE STRING FOR ESP8266 ---- FIX THIS
+    //String _wifiHostname;                   // WiFi Hostname itself
+    const char* _wifiHostname;              // Used for MKR
     bool _wifiHostnameSet = false;          // For tracking if WiFi hostname is set
 };
 
