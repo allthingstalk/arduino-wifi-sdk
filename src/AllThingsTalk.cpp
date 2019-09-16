@@ -48,8 +48,7 @@ Device *Device::instance = nullptr;
 // Constructor
 Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {
     if (Device::instance != nullptr) {
-        // URADI NESTO
-        //throw "This device doesn't support more than 1 object";
+        //#error "This device doesn't support more than 1 object";
     }
     Device::instance = this;
     this->deviceCreds = &deviceCreds;

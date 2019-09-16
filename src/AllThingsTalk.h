@@ -44,7 +44,8 @@ public:
 class Device {
 public:
     Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds);
-    // Initializations
+    
+    // Initialization
     void init();
     
     // Maintaining Connection
@@ -78,10 +79,7 @@ public:
     void wifiSignalReporting(int time);
     void wifiSignalReporting(bool state, int time);
     String wifiSignal();
-    
-    // Callback saves for non-esp
-    static Device* instance;
-    
+
     // Callbacks (Receiving Data)
     bool setActuationCallback(String asset, void (*actuationCallback)(bool payload));
     bool setActuationCallback(String asset, void (*actuationCallback)(int payload));
@@ -94,19 +92,24 @@ private:
     WifiCredentials *wifiCreds;
     DeviceConfig *deviceCreds;
     
+    // Debugging
     Stream *debugSerial;
     template<typename T> void debug(T message, char separator = '\n');
     template<typename T> void debugVerbose(T message, char separator = '\n');
     
-    void generateRandomID();
+    // Connection LED
     void fadeLed();
     void fadeLedStop();
+    
+    // Connecting
+    void generateRandomID();
     void maintainWiFi();
     void maintainAllThingsTalk();
     void reportWiFiSignal();
-    static void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length); // STATIC ZA MKR
-    
+
     // Actuations / Callbacks
+    static Device* instance; // // Internal callback saving for non-ESP devices (e.g. MKR)
+    static void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length); // STATIC JE SAMO ZA MKR
     static const int maximumActuations = 32;
     ActuationCallback actuationCallbacks[maximumActuations];
     int actuationCallbackCount = 0;
