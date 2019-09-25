@@ -64,7 +64,11 @@ public:
     void connect();
     void disconnect();
     void connectWiFi();
-    void setHostname(const char* hostname); // THIS IS STRING WHEN ESP8266
+    #ifdef ESP8266
+    void setHostname(String hostname);
+    #else
+    void setHostname(const char* hostname);
+    #endif
     void disconnectWiFi();
     void connectAllThingsTalk();
     void disconnectAllThingsTalk();
@@ -98,8 +102,9 @@ private:
     template<typename T> void debugVerbose(T message, char separator = '\n');
     
     // Connection LED
-    void fadeLed();
-    void fadeLedStop();
+    void connectionLedFadeStart();
+    void connectionLedFadeStop();
+    static void connectionLedFade();
     
     // Connecting
     void generateRandomID();
@@ -108,8 +113,12 @@ private:
     void reportWiFiSignal();
 
     // Actuations / Callbacks
+    #ifdef ESP8266
+    void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length);
+    #else
     static Device* instance; // // Internal callback saving for non-ESP devices (e.g. MKR)
     static void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length); // STATIC JE SAMO ZA MKR
+    #endif
     static const int maximumActuations = 32;
     ActuationCallback actuationCallbacks[maximumActuations];
     int actuationCallbackCount = 0;
@@ -119,38 +128,60 @@ private:
     // Connection Signal LED Parameters
     #define UP 1
     #define DOWN 0
-    bool _ledEnabled                  = true;    // Default state for Connection LED
-    int _connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
-    bool schedulerActive              = false;   // Keep track of scheduler
-    bool supposedToFade               = false;   // Know if Connection LED is supposed to fade
-    static const int _minPWM          = 0;       // Minimum PWM
-    static const int _maxPWM          = 1023;    // Maximum PWM
-    static const byte _fadeIncrement  = 5;       // How smooth to fade
-    static const int _fadeInterval    = 3;       // Interval between fading steps
-    byte _fadeDirection               = UP;      // Initial value
-    int _fadeValue                    = 1023;    // Initial value
-    unsigned long _previousFadeMillis;           // millis() timing Variable, just for fading
+    
+    #ifdef ESP8266
+    bool ledEnabled                  = true;    // Default state for Connection LED
+    int connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
+    static const int minPWM          = 0;       // Minimum PWM
+    static const int maxPWM          = 1023;    // Maximum PWM
+    static const byte fadeIncrement  = 5;       // How smooth to fade
+    static const int fadeInterval    = 3;       // Interval between fading steps
+    byte fadeDirection               = UP;      // Initial value
+    int fadeValue                    = 1023;    // Initial value
+    unsigned long previousFadeMillis;           // millis() timing Variable, just for fading
+    #else
+    bool ledEnabled                  = true;    // Default state for Connection LED
+    int connectionLedPin             = LED_BUILTIN;
+    bool schedulerActive             = false;   // Keep track of scheduler
+    bool supposedToFade              = false;   // Know if Connection LED is supposed to fade
+    bool supposedToStop              = false;   // Keep track if fading is supposed to stop
+    bool fadeOut                     = false;   // Keep track if Connection LED is supposed to fade out
+    bool fadeOutBlink                = false;   // Keep track if Connection LED is supposed to blink after fading out
+    static const int minPWM          = 0;       // Minimum PWM
+    static const int maxPWM          = 255;     // Maximum PWM
+    static const byte fadeIncrement  = 3;       // How smooth to fade
+    static const int fadeInterval    = 10;      // Interval between fading steps
+    static const int blinkInterval   = 100;     // Milliseconds between blinks at the end of connection led fade-out
+    int fadeOutBlinkIteration        = 0;       // Keeps track of Connection LED blink iterations
+    byte fadeDirection               = UP;      // Keep track which way should the LED Fade
+    int fadeValue                    = 0;       // Keep track of current Connection LED brightness
+    unsigned long previousFadeMillis;           // millis() timing Variable, just for fading
+    unsigned long previousFadeOutMillis;        // Keeps track of time for fading out Connection LED
+    unsigned long previousFadeOutBlinkMillis;   // Keeps track of time for blinks after fading out the LED
+    #endif
 
     // MQTT Parameters
-    char _mqttId[256];                      // Variable for saving generated client ID
-    bool _callbackEnabled = true;           // Variable for checking if callback is enabled
+    char mqttId[256];                      // Variable for saving generated client ID
 
+    bool callbackEnabled = true;           // Variable for checking if callback is enabled
     // WiFi Signal Reporting Parameters
-    char* _wifiSignalAsset   = "wifi-signal"; // Asset name on AllThingsTalk for WiFi Signal Reporting
-    bool _rssiReporting      = true;        // Default value for WiFi Signal Reporting
-    int _rssiReportInterval  = 300;         // Default interval (seconds) for WiFi Signal Reporting
-    unsigned long _rssiPrevTime;            // Remembers last time WiFi Signal was reported
+    char* wifiSignalAsset   = "wifi-signal"; // Asset name on AllThingsTalk for WiFi Signal Reporting
+    bool rssiReporting      = false;       // Default value for WiFi Signal Reporting
+    int rssiReportInterval  = 300;         // Default interval (seconds) for WiFi Signal Reporting
+    unsigned long rssiPrevTime;            // Remembers last time WiFi Signal was reported
 
     // Debug parameters
-    bool _debugVerboseEnabled = false;
+    bool debugVerboseEnabled = false;
 
     // Connection parameters
-    bool _disconnectedWiFi;                 // True when user intentionally disconnects
-    bool _disconnectedAllThingsTalk;        // True when user intentionally disconnects
-    // CHANGE FROM STRING FOR MKR, USE STRING FOR ESP8266 ---- FIX THIS
-    //String _wifiHostname;                   // WiFi Hostname itself
-    const char* _wifiHostname;              // Used for MKR
-    bool _wifiHostnameSet = false;          // For tracking if WiFi hostname is set
+    bool disconnectedWiFi;                 // True when user intentionally disconnects
+    bool disconnectedAllThingsTalk;        // True when user intentionally disconnects
+    #ifdef ESP8266
+    String wifiHostname;                   // WiFi Hostname itself
+    #else
+    const char* wifiHostname;              // Used for MKR
+    #endif
+    bool wifiHostnameSet = false;          // For tracking if WiFi hostname is set
 };
 
 #endif
