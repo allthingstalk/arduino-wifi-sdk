@@ -38,10 +38,9 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     * [Define Your Own Connection LED Pin](#define-your-own-connection-led-pin)
     * [Disable Connection LED](#disable-connection-led)
   * [WiFi Signal Reporting](#wifi-signal-reporting)
-    * [Showing WiFi Signal Strength](#showing-wifi-signal-strength)
+    * [Enable WiFi Signal Reporting](#enable-wifi-signal-reporting)
     * [Custom Reporting Interval](#custom-reporting-interval)
     * [WiFi Signal Strength On-Demand](#wifi-signal-strength-on-demand)
-    * [Disable WiFi Signal Reporting](#disable-wifi-signal-reporting)
 * [Sending Data](#sending-data)
   * [JSON](#json)
   * [CBOR](#cbor)
@@ -72,13 +71,12 @@ The library automatically recognizes supported Arduino boards and uses adequate 
 Library currently has **full** support for these boards:
 
 - **ESP8266** (this includes all ESP8266-based dev boards)
-
+- **Arduino MKR WiFi 1010**
 
 Support is planned for the following boards:
 
 - ESP32
 - Arduino MKR 1000
-- Arduino MKR 1010
 - Arduino Generic with Ethernet Shield
 
 
@@ -237,32 +235,42 @@ void setup() {
 
 ## WiFi Signal Reporting
 
-This library automatically reports WiFi Signal Strength to your AllThingsTalk Maker every 5 minutes by default.  
+This library has the ability to automatically report WiFi Signal Strength to your AllThingsTalk Maker (defaults to every 5 minutes).  
 The strength is presented as `Excellent`, `Good`, `Decent`, `Bad` and `Horrible`, depending on the quality of your WiFi Connection.
 
 >If your device reports to AllThingsTalk only based on some physical state change and you don't see any updates for some time, you don't have a way of knowing if the device unexpectedly went offline, since you'd just think the state didn't change.
 > Fortunately, a side-effect of WiFi Signal Reporting is that you can use it with AllThingsTalk **Watchdog**, so you can be sure your device went offline for some reason if it doesn't report back at the predefined WiFi Signal Reporting interval.
 > Setup Watchdog by going to your AllThingsTalk Maker > *Your Device* > Settings > Watchdog 
 
-### Showing WiFi Signal Strength
+### Enable WiFi Signal Reporting
 
-To show WiFi Signal Strength, create a *Sensor* asset on your AllThingsTalk Maker device named `wifi-signal` of type `String`
+> **IMPORTANT:** It's important that you first create a *Sensor* asset on your AllThingsTalk Maker device named **`wifi-signal`** of type **`String`** to which the device will publish the data.
 
-### Custom Reporting Interval
-
-By default, the library publishes the WiFi Signal Strength to your AllThingsTalk Maker every 5 minutes (300 seconds).  
-You can override this by defining your custom interval (in seconds) using `wifiSignalReporting(seconds)` in your `setup()` function before initialization:
+This feature is off by default, so if you wish to enable it, simply call `wifiSignalReporting(true)` in your `setup()` function (preferably before initialization):
 
 ```cpp
 void setup() {
-  device.wifiSignalReporting(seconds);
+  device.wifiSignalReporting(true);
   device.init();
 }
 ```
 
-This feature can also be defined as `wifiSignalReporting(true, seconds)`  
+> You can enable and disable WiFi Signal Reporting **anywhere** in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
 
-> You can call `wifiSignalReporting` **anywhere** in your sketch if you wish to change its values during operation.
+### Custom Reporting Interval
+
+By default, the library publishes the WiFi Signal Strength to your AllThingsTalk Maker every 5 minutes (300 seconds).  
+You can override this by defining your custom interval (in seconds) using `wifiSignalReporting(true, seconds)` in your `setup()` function before initialization:
+
+```cpp
+void setup() {
+  device.wifiSignalReporting(true, seconds);
+  device.init();
+}
+```
+
+
+> You can call `wifiSignalReporting(seconds)` **anywhere** in your sketch if you wish to change its values during operation.
 
 ### WiFi Signal Strength On-Demand
 
@@ -278,19 +286,6 @@ void loop() {
   Serial.println(wifiSignal()); // Prints WiFi signal to serial
 }
 ```
-
-### Disable WiFi Signal Reporting
-
-If you wish to disable this feature, just call `wifiSignalReporting(false)` in your setup function instead:
-
-```cpp
-void setup() {
-  device.wifiSignalReporting(false);
-  device.init();
-}
-```
-
-> You can enable and disable WiFi Signal Reporting **anywhere** in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
 
 
 # Sending Data
@@ -483,11 +478,12 @@ void setup() {
 
 
 # Notes
-- This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/)
+- This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/). [Scheduler](https://www.arduino.cc/en/reference/scheduler) and [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) are used as well in case of Arduino MKR WiFi 1010.
 - The PubSubClient library is included with the AllThingsTalk Arduino SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino SDK is made easier and the version of PubSubClient is guaranteed to be compatible.  
 This does not interfere with other instances of PubSubClient you might have in your Arduino libraries.
 - Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
 - Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` way too often. In this case, it is okay to use `delay()` for about 5 to 50 milliseconds (see what works for you) in order to avoid this issue.
+- Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
 - Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in next release.
 - This library has been tested and confirmed to work with:
     - Arduino 1.8.9

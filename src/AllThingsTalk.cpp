@@ -25,8 +25,6 @@
  * Detailed instructions for this library can be found: https://github.com/allthingstalk/arduino-sdk-v2
  */
 
-// THIS IS EXPERIMENTAL CODE FOR MKR 1010 SUPPORT
-
 #include "AllThingsTalk.h"
 #include "Arduino.h"
 #include "CborPayload.h"
@@ -36,13 +34,10 @@
 #include <ArduinoJson.h>
 
 
+// If the connected device is an Arduino MKR 1010 WiFi
 #ifdef ARDUINO_SAMD_MKRWIFI1010
-//#include "Ticker.h"
 #include <Scheduler.h>
 #include <WiFiNINA.h>
-
-//Ticker timer1(Device::connectionLed, 5);
-//Ticker timer1(std::bind(&Device::connectionLed, this), 5);
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
@@ -81,6 +76,7 @@ template<typename T> void Device::debugVerbose(T message, char separator) {
     }
 }
 
+// Start fading the Connection LED
 void Device::connectionLedFadeStart() {
     if (ledEnabled) {
         supposedToFade = true;
@@ -91,6 +87,14 @@ void Device::connectionLedFadeStart() {
     }
 }
 
+// Stop the Connection LED
+void Device::connectionLedFadeStop() {
+    supposedToFade = false;
+    supposedToStop = true;
+    fadeOut = true;
+}
+
+// Actual logic for fading, fade-out and post-fade-out blinking of Connection LED
 void Device::connectionLedFade() {
     if (instance->ledEnabled) {
         unsigned long thisMillis = millis();
@@ -163,13 +167,6 @@ void Device::connectionLedFade() {
         yield();
     }
     yield();
-}
-
-// Turn off Connection Signal LED
-void Device::connectionLedFadeStop() {
-    supposedToFade = false;
-    supposedToStop = true;
-    fadeOut = true;
 }
 
 void Device::wifiSignalReporting(bool state) {
@@ -791,7 +788,6 @@ template void Device::send(char *asset, double payload);
 
 #define __HAS_IMPLEMENTATION // Prevents error if no devices are supported by SDK
 #endif //(starts from #ifdef ARDUINO_ESP8266_NODEMCU)
-
 
 
 #ifdef ESP8266
