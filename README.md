@@ -486,6 +486,6 @@ This does not interfere with other instances of PubSubClient you might have in y
 - Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
 - Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in next release.
 - This library has been tested and confirmed to work with:
-    - Arduino 1.8.9
+    - Arduino 1.8.10
     - PubSubClient 2.7.0 (Included)
     - ArduinoJson 6.11.4

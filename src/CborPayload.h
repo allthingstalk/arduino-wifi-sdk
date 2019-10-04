@@ -10,7 +10,7 @@
 
 class CborPayload : public Payload {
 public:
-    CborPayload(unsigned int capacity = 51); // Lowest LoRa payload length.
+    CborPayload(unsigned int capacity = 251);
     ~CborPayload();
 
     template<typename T> bool set(char *assetName, T value);
