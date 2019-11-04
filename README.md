@@ -56,7 +56,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
 
 # Installation
 - **Install AllThingsTalk WiFi SDK**
-    - [Download the library as ZIP file](https://github.com/AllThingsTalk/Arduino-SDK-v2/archive/master.zip)
+    - [Download the library as ZIP file](https://github.com/allthingstalk/arduino-wifi-sdk/archive/master.zip)
     - Unzip it and remove “-master” from the folder name
     - Copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*)
 - **Install Dependencies**
