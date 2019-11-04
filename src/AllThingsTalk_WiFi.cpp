@@ -22,10 +22,10 @@
  *
  * This library makes connecting your Arduino devices with your AllThingsTalk Maker
  * a breeze, but it has quite a few more tricks up its sleeve.
- * Detailed instructions for this library can be found: https://github.com/allthingstalk/arduino-sdk-v2
+ * Detailed instructions for this library can be found: https://github.com/allthingstalk/arduino-wifi-sdk
  */
 
-#include "AllThingsTalk.h"
+#include "AllThingsTalk_WiFi.h"
 #include "Arduino.h"
 #include "CborPayload.h"
 #include "GeoLocation.h"
@@ -198,7 +198,7 @@ void Device::connectionLed(bool state, int ledPin) {
 void Device::debugPort(Stream &debugSerial) {
     this->debugSerial = &debugSerial;
     debug("");
-    debug("------------- AllThingsTalk SDK Serial Begin -------------");
+    debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     debug("Debug Level: Normal");
 }
 
@@ -206,7 +206,7 @@ void Device::debugPort(Stream &debugSerial, bool verbose) {
     debugVerboseEnabled = verbose;
     this->debugSerial = &debugSerial;
     debug("");
-    debug("------------- AllThingsTalk SDK Serial Begin -------------");
+    debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     if (!verbose) debug("Debug Level: Normal");
     debugVerbose("Debug Level: Verbose");
     
@@ -902,7 +902,7 @@ void Device::connectionLed(bool state, int ledPin) {
 void Device::debugPort(Stream &debugSerial) {
     this->debugSerial = &debugSerial;
     debug("");
-    debug("------------- AllThingsTalk SDK Serial Begin -------------");
+    debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     debug("Debug Level: Normal");
 }
 
@@ -910,7 +910,7 @@ void Device::debugPort(Stream &debugSerial, bool verbose) {
     debugVerboseEnabled = verbose;
     this->debugSerial = &debugSerial;
     debug("");
-    debug("------------- AllThingsTalk SDK Serial Begin -------------");
+    debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     if (!verbose) debug("Debug Level: Normal");
     debugVerbose("Debug Level: Verbose");
     

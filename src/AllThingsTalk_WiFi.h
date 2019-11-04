@@ -22,11 +22,11 @@
  *
  * This library makes connecting your Arduino devices with your AllThingsTalk Maker
  * a breeze, but it has quite a few more tricks up its sleeve.
- * Detailed instructions for this library can be found on https://github.com/allthingstalk/arduino-sdk-v2
+ * Detailed instructions for this library can be found on https://github.com/allthingstalk/arduino-wifi-sdk
  */
  
-#ifndef ALLTHINGSTALK_H_
-#define ALLTHINGSTALK_H_
+#ifndef ALLTHINGSTALK_WIFI_H_
+#define ALLTHINGSTALK_WIFI_H_
 
 #include "WifiCredentials.h"
 #include "DeviceConfig.h"

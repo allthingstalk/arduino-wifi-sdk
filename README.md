@@ -1,7 +1,8 @@
 
 
 
-# AllThingsTalk Arduino SDK v2
+
+# AllThingsTalk Arduino WiFi SDK
 
 AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
 
@@ -9,7 +10,7 @@ AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices w
 Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello World!` to your AllThingsTalk Maker:
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("WiFi-SSID", "WiFi-Password");
 auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
@@ -54,7 +55,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
 <!--te-->
 
 # Installation
-- **Install AllThingsTalk SDK**
+- **Install AllThingsTalk WiFi SDK**
     - [Download the library as ZIP file](https://github.com/AllThingsTalk/Arduino-SDK-v2/archive/master.zip)
     - Unzip it and remove “-master” from the folder name
     - Copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*)
@@ -63,14 +64,14 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     - Search for and download “**ArduinoJson**” by Benoit Blanchon
 - **Restart your Arduino IDE**
 
-You can now add this library in your sketch by going to *Sketch > Include Library > AllThingsTalk* or by adding *<AllThingsTalk.h>* in your sketch.  
-Make sure to play with examples included in this library by going to *File > Examples > AllThingsTalk*
+You can now add this library in your sketch by going to *Sketch > Include Library > AllThingsTalk WiFi SDK* or by adding *<AllThingsTalk_WiFi.h>* in your sketch.  
+Make sure to play with examples included in this library by going to *File > Examples > AllThingsTalk WiFi SDK*
 
 ## Board Support
 The library automatically recognizes supported Arduino boards and uses adequate version of itself.  
 Library currently has **full** support for these boards:
 
-- **ESP8266** (this includes all ESP8266-based dev boards)
+- **ESP8266** (includes all ESP8266-based boards)
 - **Arduino MKR WiFi 1010**
 
 Support is planned for the following boards:
@@ -89,7 +90,7 @@ The library takes care about initialization and maintaining WiFi and connection 
 At the beginning of your sketch (before `setup()`), make sure to include this library and define your credentials:
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("Your-WiFi-SSID","Your-WiFi-Password");
 auto deviceCreds = DeviceConfig("Your-Device-ID","Your-Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
@@ -479,7 +480,7 @@ void setup() {
 
 # Notes
 - This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/). [Scheduler](https://www.arduino.cc/en/reference/scheduler) and [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) are used as well in case of Arduino MKR WiFi 1010.
-- The PubSubClient library is included with the AllThingsTalk Arduino SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino SDK is made easier and the version of PubSubClient is guaranteed to be compatible.  
+- The PubSubClient library is included with the AllThingsTalk Arduino WiFi SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino WiFi SDK is made easier and the version of PubSubClient is guaranteed to be compatible.  
 This does not interfere with other instances of PubSubClient you might have in your Arduino libraries.
 - Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
 - Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` way too often. In this case, it is okay to use `delay()` for about 5 to 50 milliseconds (see what works for you) in order to avoid this issue.

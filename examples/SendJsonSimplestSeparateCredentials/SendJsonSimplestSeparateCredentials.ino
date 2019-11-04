@@ -1,5 +1,5 @@
-/* AllThingsTalk Arduino SDK
- * https://github.com/allthingstalk/arduino-sdk-v2
+/* AllThingsTalk Arduino WiFi SDK
+ * https://github.com/allthingstalk/arduino-wifi-sdk
  *
  * About this example:
  * Shows the minimal code required to connect to Wi-Fi and send a message to your AllThingsTalk Maker.
@@ -14,7 +14,7 @@
  * - Edit the "keys.h" file (second tab of your Arduino IDE) and enter your credentials there.
  */
  
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 #include "keys.h"
 
 auto wifiCreds   = WifiCredentials(WIFI_SSID, WIFI_PASSWORD); // Edit these in the "keys.h" file
