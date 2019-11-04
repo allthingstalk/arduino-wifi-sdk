@@ -123,7 +123,7 @@ const char* DEVICE_TOKEN  = "Your-Device-Token";
 Then, make sure to change the top of your sketch to include **keys.h** and use the variables defined in it:
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 #include "keys.h" // Include our newly created file
 auto wifiCreds = WifiCredentials(WIFI_SSID, WIFI_PASSWORD);
 auto deviceCreds = DeviceConfig(DEVICE_ID, DEVICE_TOKEN);
@@ -328,7 +328,7 @@ CBOR is a data format whose design goals include the possibility of extremely sm
 You’ll need to create a `CborPayload` object before being able to send data using CBOR. The beginning of your sketch should therefore contain `CborPayload payload;`
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("Your-SSID","Your-WiFi-Password");
 auto deviceCreds = DeviceConfig("Your-Device-ID","Your-Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
@@ -366,7 +366,7 @@ In case you want to connect an *off-the-shelf* device or define your own binary 
 You’ll need to create a `BinaryPayload` object before being able to send data using ABCL. The beginning of your sketch should therefore contain `BinaryPayload payload;`
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("Your-SSID","Your-WiFi-Password");
 auto deviceCreds = DeviceConfig("Your-Device-ID","Your-Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
