@@ -4,7 +4,7 @@
 
 # AllThingsTalk Arduino WiFi SDK
 
-<img align="right" width="300" height="178" src="extras/wifi-logo.png">
+<img align="right" width="250" height="148" src="extras/wifi-logo.png">
 
 AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
   
