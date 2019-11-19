@@ -2,6 +2,7 @@
 
 
 
+
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
@@ -66,6 +67,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
 - **Install Dependencies**
     - Open Arduino IDE and go to *Tools* > *Manage Libraries*
     - Search for and download “**ArduinoJson**” by Benoit Blanchon
+    - If you're on MKR1010, also search for and download "WiFiNINA" by Arduino. If not, ignore.
 - **Restart your Arduino IDE**
 
 You can now add this library in your sketch by going to *Sketch > Include Library > AllThingsTalk WiFi SDK* or by adding *<AllThingsTalk_WiFi.h>* in your sketch.  
@@ -325,11 +327,12 @@ When using JSON to send data, the message is sent immediately upon execution.
 [Read more about CBOR in our Documentation](https://docs.allthingstalk.com/developers/data-formats/#cbor)  
 CBOR is a data format whose design goals include the possibility of extremely small code size, fairly small message size, and extensibility without the need for version negotiation.  
 
-
 > This method uses less data. Use it if you’re working with limited data or bandwidth.  
 > As opposed to JSON data sending, with CBOR, you can build a payload with multiple messages before sending them.
 
-You’ll need to create a `CborPayload` object before being able to send data using CBOR. The beginning of your sketch should therefore contain `CborPayload payload;`
+You’ll need to create a `CborPayload` object before being able to send data using CBOR.  
+By default, the maximum CBOR payload size is **256 bytes**. If needed, you can change that by by using `CborPayload payload(payload_size_in_bytes)` when creating the object. 
+In the end, the beginning of your sketch should therefore contain `CborPayload payload` or `CborPayload payload(payload_size_in_bytes)`:
 
 ```cpp
 #include <AllThingsTalk_WiFi.h>

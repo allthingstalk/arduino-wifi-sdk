@@ -366,7 +366,8 @@ void Device::connectAllThingsTalk() {
                         debug("Network connection was broken");
                         break;
                     case -2:
-                        debug("Network connection failed. Note that this is also a general error");
+                        debug("Network connection failed.");
+                        debugVerbose("This is a general error. Check if the asset you're publishing to exists on AllThingsTalk.");
                         break;
                     case -1:
                         debug("Client disconnected cleanly (intentionally)");
@@ -1069,7 +1070,8 @@ void Device::connectAllThingsTalk() {
                         debug("Network connection was broken");
                         break;
                     case -2:
-                        debug("Network connection failed. This is a general error, but maybe check your credentials for AllThingsTalk");
+                        debug("Network connection failed.");
+                        debugVerbose("This is a general error. Check if the asset you're publishing to exists on AllThingsTalk.");
                         break;
                     case -1:
                         debug("Client disconnected cleanly (intentionally)");
