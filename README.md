@@ -331,7 +331,7 @@ CBOR is a data format whose design goals include the possibility of extremely sm
 > As opposed to JSON data sending, with CBOR, you can build a payload with multiple messages before sending them.
 
 You’ll need to create a `CborPayload` object before being able to send data using CBOR.  
-By default, the maximum CBOR payload size is **256 bytes**. If needed, you can change that by by using `CborPayload payload(payload_size_in_bytes)` when creating the object. 
+By default, the maximum CBOR payload size is **256 bytes**. If needed, you can change that by by using `CborPayload payload(payload_size_in_bytes)` when creating the object.  
 In the end, the beginning of your sketch should therefore contain `CborPayload payload` or `CborPayload payload(payload_size_in_bytes)`:
 
 ```cpp

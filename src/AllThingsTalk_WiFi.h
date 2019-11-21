@@ -10,9 +10,7 @@
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +20,7 @@
  *
  * This library makes connecting your Arduino devices with your AllThingsTalk Maker
  * a breeze, but it has quite a few more tricks up its sleeve.
- * Detailed instructions for this library can be found on https://github.com/allthingstalk/arduino-wifi-sdk
+ * Detailed instructions for this library can be found: https://github.com/allthingstalk/arduino-wifi-sdk
  */
  
 #ifndef ALLTHINGSTALK_WIFI_H_
