@@ -1,5 +1,5 @@
-/* AllThingsTalk Arduino SDK
- * https://github.com/allthingstalk/arduino-sdk-v2
+/* AllThingsTalk Arduino WiFi SDK
+ * https://github.com/allthingstalk/arduino-wifi-sdk
  *
  * About this example: 
  * Shows various functions of this SDK.
@@ -17,7 +17,7 @@
  *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Sensor-Asset
  */
 
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 
 auto wifiCreds   = WifiCredentials("WiFi-SSID", "WiFi-Password"); // Your WiFi Network Name and Password
 auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");     // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token

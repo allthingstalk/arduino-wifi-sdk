@@ -10,9 +10,7 @@
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,27 +20,23 @@
  *
  * This library makes connecting your Arduino devices with your AllThingsTalk Maker
  * a breeze, but it has quite a few more tricks up its sleeve.
- * Detailed instructions for this library can be found: https://github.com/allthingstalk/arduino-sdk-v2
+ * Detailed instructions for this library can be found: https://github.com/allthingstalk/arduino-wifi-sdk
  */
 
-#include "AllThingsTalk.h"
-#include "Arduino.h"
-#include "CborPayload.h"
-#include "GeoLocation.h"
-#include "BinaryPayload.h"
-#include "PubSubClient.h"
-#include <ArduinoJson.h>
-
-#ifdef ESP8266
-#include <Ticker.h>
-#include <ESP8266WiFi.h>
+#include <Scheduler.h>
+#include <WiFiNINA.h>
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
-Ticker fader;
+
+Device *Device::instance = nullptr;
 
 // Constructor
 Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {
+    if (Device::instance != nullptr) {
+        //#error "This device doesn't support more than 1 object";
+    }
+    Device::instance = this;
     this->deviceCreds = &deviceCreds;
     this->wifiCreds = &wifiCreds;
 }
@@ -59,7 +53,7 @@ template<typename T> void Device::debug(T message, char separator) {
 
 // Serial print (verbose debugging)
 template<typename T> void Device::debugVerbose(T message, char separator) {
-    if (_debugVerboseEnabled) {
+    if (debugVerboseEnabled) {
         if (debugSerial) {
             debugSerial->print(message);
             if (separator) {
@@ -69,91 +63,137 @@ template<typename T> void Device::debugVerbose(T message, char separator) {
     }
 }
 
-// Connection Signal LED
-void Device::fadeLed() {
-    if (_ledEnabled == true) {
-        if (fader.active() == false) {
-            fader.attach_ms(1, std::bind(&Device::fadeLed, this));
-        } else {
-            unsigned long thisMillis = millis();
-            if (thisMillis - _previousFadeMillis >= _fadeInterval) {
-                if (_fadeDirection == UP) {
-                    _fadeValue = _fadeValue + _fadeIncrement;
-                    if (_fadeValue >= _maxPWM) {
-                        _fadeValue = _maxPWM;
-                        _fadeDirection = DOWN;
-                    }
-            } else {
-                _fadeValue = _fadeValue - _fadeIncrement;
-                if (_fadeValue <= _minPWM) {
-                    _fadeValue = _minPWM;
-                    _fadeDirection = UP;
-                }
-            }
-            analogWrite(_connectionLedPin, _fadeValue);
-            _previousFadeMillis = thisMillis;
-            }
+// Start fading the Connection LED
+void Device::connectionLedFadeStart() {
+    if (ledEnabled) {
+        supposedToFade = true;
+        if (!schedulerActive) {
+            Scheduler.startLoop(Device::connectionLedFade);
+            schedulerActive = true;
         }
     }
 }
 
-// Turn off Connection Signal LED
-void Device::fadeLedStop() {
-    if (_ledEnabled == true) {
-        fader.detach();
-        while (_fadeValue <= _maxPWM) {
-            delay(_fadeInterval);
-            _fadeValue = _fadeValue + _fadeIncrement;
-            analogWrite(_connectionLedPin, _fadeValue);
+// Stop the Connection LED
+void Device::connectionLedFadeStop() {
+    supposedToFade = false;
+    supposedToStop = true;
+    fadeOut = true;
+}
+
+// Actual logic for fading, fade-out and post-fade-out blinking of Connection LED
+void Device::connectionLedFade() {
+    if (instance->ledEnabled) {
+        unsigned long thisMillis = millis();
+        if (instance->supposedToStop) {
+            if (thisMillis - instance->previousFadeOutMillis >= instance->fadeInterval && instance->fadeOut) {
+                instance->fadeValue = instance->fadeValue - instance->fadeIncrement;
+                if (instance->fadeValue <= instance->minPWM) {
+                    instance->fadeValue = instance->minPWM;
+                    instance->fadeDirection = UP;
+                    instance->fadeOutBlinkIteration = 0;
+                    instance->fadeOut = false;
+                    instance->fadeOutBlink = true;
+                    yield();
+                }
+                analogWrite(instance->connectionLedPin, instance->fadeValue);
+                instance->previousFadeOutMillis = thisMillis;
+                yield();
+            }
+            if (thisMillis - instance->previousFadeOutBlinkMillis >= instance->blinkInterval && instance->fadeOutBlink) {
+                switch(instance->fadeOutBlinkIteration) {
+                    case 0:
+                        instance->fadeValue = instance->minPWM;
+                        break;
+                    case 1:
+                        instance->fadeValue = instance->maxPWM;
+                        break;
+                    case 2:
+                        instance->fadeValue = instance->minPWM;
+                        break;
+                    case 3:
+                        instance->fadeValue = instance->maxPWM;
+                        break;
+                    case 4:
+                        instance->fadeValue = instance->minPWM;
+                        break;
+                    case 5:
+                        instance->fadeOutBlink = false;
+                        instance->supposedToStop = false;
+                        break;
+                }
+                analogWrite(instance->connectionLedPin, instance->fadeValue);
+                instance->fadeOutBlinkIteration++;
+                instance->previousFadeOutBlinkMillis = thisMillis;
+                yield();
+            }
         }
-        _fadeValue = _maxPWM;
-        for (int i=0; i<=1; i++) {
-            delay(100);
-            analogWrite(_connectionLedPin, _minPWM);
-            delay(50);
-            analogWrite(_connectionLedPin, _maxPWM);
+        if (instance->supposedToFade) {
+            if (thisMillis - instance->previousFadeMillis >= instance->fadeInterval) {
+                if (instance->fadeDirection == UP) {
+                    instance->fadeValue = instance->fadeValue + instance->fadeIncrement;
+                    if (instance->fadeValue >= instance->maxPWM) {
+                        instance->fadeValue = maxPWM;
+                        instance->fadeDirection = DOWN;
+                    }
+                    yield();
+                } else {
+                    instance->fadeValue = instance->fadeValue - instance->fadeIncrement;
+                    if (instance->fadeValue <= instance->minPWM) {
+                        instance->fadeValue = instance->minPWM;
+                        instance->fadeDirection = UP;
+                    }
+                    yield();
+                }
+                analogWrite(instance->connectionLedPin, instance->fadeValue);
+                instance->previousFadeMillis = thisMillis;
+                yield();
+            }
+            yield();
         }
+        yield();
     }
+    yield();
 }
 
 void Device::wifiSignalReporting(bool state) {
-    _rssiReporting = state;
+    rssiReporting = state;
 }
 
 void Device::wifiSignalReporting(int time) {
-    _rssiReportInterval = time;
+    rssiReportInterval = time;
 }
 
 void Device::wifiSignalReporting(bool state, int time) {
-    _rssiReportInterval = time;
-    _rssiReporting = state;
+    rssiReportInterval = time;
+    rssiReporting = state;
 }
 
 void Device::connectionLed(bool state) {
-    _ledEnabled = state;
+    ledEnabled = state;
 }
 
 void Device::connectionLed(int ledPin) {
-    _connectionLedPin = ledPin;
+    connectionLedPin = ledPin;
 }
 
 void Device::connectionLed(bool state, int ledPin) {
-    _connectionLedPin = ledPin;
-    _ledEnabled = state;
+    connectionLedPin = ledPin;
+    ledEnabled = state;
 }
 
 void Device::debugPort(Stream &debugSerial) {
     this->debugSerial = &debugSerial;
     debug("");
-    debug("------------- AllThingsTalk SDK Serial Begin -------------");
+    debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     debug("Debug Level: Normal");
 }
 
 void Device::debugPort(Stream &debugSerial, bool verbose) {
-    _debugVerboseEnabled = verbose;
+    debugVerboseEnabled = verbose;
     this->debugSerial = &debugSerial;
     debug("");
-    debug("------------- AllThingsTalk SDK Serial Begin -------------");
+    debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     if (!verbose) debug("Debug Level: Normal");
     debugVerbose("Debug Level: Verbose");
     
@@ -163,7 +203,7 @@ void Device::debugPort(Stream &debugSerial, bool verbose) {
 void Device::generateRandomID() {
     randomSeed(analogRead(0));
     long randValue = random(2147483647);
-    snprintf(_mqttId, sizeof _mqttId, "%s%dl", "arduino-", randValue);
+    snprintf(mqttId, sizeof mqttId, "%s%dl", "arduino-", randValue);
     debugVerbose("Generated Unique ID for this Device:", ' ');
     debugVerbose("arduino", '-');
     debugVerbose(randValue);
@@ -172,26 +212,26 @@ void Device::generateRandomID() {
 // Initialization of everything. Run in setup(), only after defining everything else.
 void Device::init() {
     // Start flashing the Connection LED
-    fadeLed();
+    connectionLedFadeStart();
     
     // Print out information about Connection LED
-    if (_ledEnabled == false) {
+    if (ledEnabled == false) {
         debug("Connection LED: Disabled");
     } else {
         debug("Connection LED: Enabled - GPIO", ' ');
-        debug(_connectionLedPin);
+        debug(connectionLedPin);
         debugVerbose("Please don't use GPIO", ' ');
-        debugVerbose(_connectionLedPin, ' ');
+        debugVerbose(connectionLedPin, ' ');
         debugVerbose("as it's used for Connection LED");
     }
     
     // Print out information about WiFi Signal Reporting
-    if (_rssiReporting == false) {
+    if (rssiReporting == false) {
         debug("WiFi Signal Reporting: Disabled");
     } else {
         debug("WiFi Signal Reporting: Enabled");
         debugVerbose("WiFi Signal Strength will be published every", ' ');
-        debugVerbose(_rssiReportInterval, ' ');
+        debugVerbose(rssiReportInterval, ' ');
         debugVerbose("seconds");
         debugVerbose("To read WiFi Strength, create a Sensor asset 'wifi-signal' of type 'String' on your AllThingsTalk Maker");
     }
@@ -209,8 +249,9 @@ void Device::init() {
 
     // Set MQTT Connection Parameters
     client.setServer(deviceCreds->getHostname(), 1883);
-    if (_callbackEnabled == true) {
-        client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
+    if (callbackEnabled == true) {
+        //client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
+        client.setCallback(Device::mqttCallback);
     }
     
     // Connect to WiFi and AllThingsTalk
@@ -219,11 +260,11 @@ void Device::init() {
 
 // Needs to be run in program loop in order to keep connections alive
 void Device::loop() {
-    if (!_disconnectedWiFi) {
+    if (!disconnectedWiFi) {
         if (WiFi.status() != WL_CONNECTED) {
             maintainWiFi();
         } else {
-            if (!_disconnectedAllThingsTalk) {
+            if (!disconnectedAllThingsTalk) {
                 if (!client.connected()) {
                     maintainAllThingsTalk();
                 } else if (client.connected()) {
@@ -233,6 +274,7 @@ void Device::loop() {
             }
         }
     }
+    yield();
 }
 
 void Device::connect() {
@@ -249,12 +291,11 @@ void Device::disconnect() {
 
 void Device::connectWiFi() {
     if (WiFi.status() != WL_CONNECTED) {
-        fadeLed();
-        WiFi.mode(WIFI_STA);
-        if (_wifiHostnameSet) {
-            WiFi.hostname(_wifiHostname);
+        connectionLedFadeStart();
+        if (wifiHostnameSet) {
+            WiFi.setHostname(wifiHostname);
             debugVerbose("WiFi Hostname:", ' ');
-            debugVerbose(_wifiHostname);
+            debugVerbose(wifiHostname);
         }
         debug("Connecting to WiFi:", ' ');
         debug(wifiCreds->getSsid(), '.');
@@ -266,7 +307,7 @@ void Device::connectWiFi() {
         debugVerbose(WiFi.localIP());
         debugVerbose("WiFi Signal:", ' ');
         debugVerbose(wifiSignal());
-        _disconnectedWiFi = false;
+        disconnectedWiFi = false;
     }
 }
 
@@ -274,34 +315,34 @@ void Device::disconnectWiFi() {
     if (WiFi.status() == WL_CONNECTED) {
         disconnectAllThingsTalk();
         WiFi.disconnect();
-        _disconnectedWiFi = true;
+        disconnectedWiFi = true;
         while (WiFi.status() == WL_CONNECTED) {}
         debug("Successfully Disconnected from WiFi");
     }
 }
 
-void Device::setHostname(String hostname) {
-    _wifiHostname = hostname;
-    _wifiHostnameSet = true;
+void Device::setHostname(const char* hostname) {
+    wifiHostname = hostname;
+    wifiHostnameSet = true;
 }
 
 void Device::connectAllThingsTalk() {
     if (!client.connected()) {
-        fadeLed();
+        connectionLedFadeStart();
         connectWiFi();
         debug("Connecting to AllThingsTalk...");
         while (!client.connected()) {
-            if (client.connect(_mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
-                if (_callbackEnabled == true) {
+            if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
+                if (callbackEnabled == true) {
                     // Build the subscribe topic
                     char command_topic[256];
                     snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
                     client.subscribe(command_topic);
                 }
-                _disconnectedAllThingsTalk = false;
-                fadeLedStop();
+                disconnectedAllThingsTalk = false;
                 debug("Connected to AllThingsTalk!");
-                if (_rssiReporting) send(_wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
+                connectionLedFadeStop();
+                if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
             } else {
                 debug("Failed to connect to AllThingsTalk. Reason:", ' ');
                 switch (client.state()) {
@@ -312,7 +353,8 @@ void Device::connectAllThingsTalk() {
                         debug("Network connection was broken");
                         break;
                     case -2:
-                        debug("Network connection failed. This is a general error, but maybe check your credentials for AllThingsTalk");
+                        debug("Network connection failed.");
+                        debugVerbose("This is a general error. Check if the asset you're publishing to exists on AllThingsTalk.");
                         break;
                     case -1:
                         debug("Client disconnected cleanly (intentionally)");
@@ -348,14 +390,18 @@ void Device::connectAllThingsTalk() {
 void Device::disconnectAllThingsTalk() {
     if (client.connected()) {
         client.disconnect();
-        _disconnectedAllThingsTalk = true;
+        disconnectedAllThingsTalk = true;
         while (client.connected()) {}
-        debug("Successfully Disconnected from AllThingsTalk");
+        if (!client.connected()) {
+            debug("Successfully Disconnected from AllThingsTalk");
+        } else {
+            debug("Failed to disconnect from AllThingsTalk");
+        }
     }
 }
 
 void Device::maintainWiFi() {
-    fadeLed();
+    connectionLedFadeStart();
     debug("WiFi Connection Dropped! Reason:", ' ');
     switch(WiFi.status()) {
         case 1:
@@ -398,8 +444,8 @@ void Device::maintainWiFi() {
         debug(WiFi.localIP(), ',');
         debug(" WiFi Signal:", ' ');
         debug(wifiSignal());
-        fadeLedStop();
-        _disconnectedWiFi = false;
+        connectionLedFadeStop();
+        disconnectedWiFi = false;
     }
 }
 
@@ -411,10 +457,10 @@ void Device::maintainAllThingsTalk() {
 
 // Called from loop; Reports wifi signal to ATTalk Maker at specified interval
 void Device::reportWiFiSignal() {
-    if (_rssiReporting && WiFi.status() == WL_CONNECTED) {
-        if (millis() - _rssiPrevTime >= _rssiReportInterval*1000) {
-            send(_wifiSignalAsset, wifiSignal());
-            _rssiPrevTime = millis();
+    if (rssiReporting && WiFi.status() == WL_CONNECTED) {
+        if (millis() - rssiPrevTime >= rssiReportInterval*1000) {
+            send(wifiSignalAsset, wifiSignal());
+            rssiPrevTime = millis();
         }
     }
 }
@@ -489,7 +535,7 @@ bool Device::tryAddActuationCallback(String asset, void (*actuationCallback), in
        debug(maximumActuations);
        return false;
    }
-    _callbackEnabled = true;
+    callbackEnabled = true;
     actuationCallbacks[actuationCallbackCount].asset = asset;
     actuationCallbacks[actuationCallbackCount].actuationCallback = actuationCallback;
     actuationCallbacks[actuationCallbackCount].actuationCallbackArgumentType = actuationCallbackArgumentType;
@@ -524,18 +570,18 @@ String extractAssetNameFromTopic(String topic) {
 
 // MQTT Callback for receiving messages
 void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length) {
-    debugVerbose("--------------------------------------");
-    debug("< Message Received from AllThingsTalk");
+    instance->debugVerbose("--------------------------------------");
+    instance->debug("< Message Received from AllThingsTalk");
     String payload;
     String topic(p_topic);
     
-    debugVerbose("Raw Topic:", ' ');
-    debugVerbose(p_topic);
+    instance->debugVerbose("Raw Topic:", ' ');
+    instance->debugVerbose(p_topic);
 
     // Whole JSON Payload
     for (uint8_t i = 0; i < p_length; i++) payload.concat((char)p_payload[i]);
-    debugVerbose("Raw JSON Payload:", ' ');
-    debugVerbose(payload);
+    instance->debugVerbose("Raw JSON Payload:", ' ');
+    instance->debugVerbose(payload);
     
     // Deserialize JSON
     DynamicJsonDocument doc(256);
@@ -545,24 +591,24 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     }
     auto error = deserializeJson(doc, json);
     if (error) {
-        debug("Parsing JSON failed. Code:", ' ');
-        debug(error.c_str());
+        instance->debug("Parsing JSON failed. Code:", ' ');
+        instance->debug(error.c_str());
         return;
     }
 
     // Extract time from JSON Document
-    debugVerbose("Message Time:", ' ');
+    instance->debugVerbose("Message Time:", ' ');
     const char* time = doc["at"];
-    debugVerbose(time);
+    instance->debugVerbose(time);
 
     String asset = extractAssetNameFromTopic(topic);
-    debugVerbose("Asset Name:", ' ');
-    debugVerbose(asset);
+    instance->debugVerbose("Asset Name:", ' ');
+    instance->debugVerbose(asset);
 
     // Call actuation callback for this specific asset
-    ActuationCallback *actuationCallback = getActuationCallbackForAsset(asset);
+    ActuationCallback *actuationCallback = instance->getActuationCallbackForAsset(asset);
     if (actuationCallback == nullptr) {
-        debug("Error: There's no actuation callback for this asset.");
+        instance->debug("Error: There's no actuation callback for this asset.");
         return;
     }
 
@@ -585,10 +631,10 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     // BOOLEAN
     if (actuationCallback->actuationCallbackArgumentType == 0 && variant.is<bool>()) {
         bool value = doc["value"];
-        debugVerbose("Called Actuation for Asset:", ' ');
-        debugVerbose(actuationCallback->asset, ',');
-        debugVerbose(" Payload Type: Boolean, Value:", ' ');
-        debugVerbose(value);
+        instance->debugVerbose("Called Actuation for Asset:", ' ');
+        instance->debugVerbose(actuationCallback->asset, ',');
+        instance->debugVerbose(" Payload Type: Boolean, Value:", ' ');
+        instance->debugVerbose(value);
         reinterpret_cast<void (*)(bool payload)>(actuationCallback->actuationCallback)(value);
         return;
     }
@@ -596,10 +642,10 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     // INTEGER
     if (actuationCallback->actuationCallbackArgumentType == 1 && variant.is<int>() && variant.is<double>()) {
         int value = doc["value"];
-        debugVerbose("Called Actuation for Asset:", ' ');
-        debugVerbose(actuationCallback->asset, ',');
-        debugVerbose(" Payload Type: Integer, Value:", ' ');
-        debugVerbose(value);
+        instance->debugVerbose("Called Actuation for Asset:", ' ');
+        instance->debugVerbose(actuationCallback->asset, ',');
+        instance->debugVerbose(" Payload Type: Integer, Value:", ' ');
+        instance->debugVerbose(value);
         reinterpret_cast<void (*)(int payload)>(actuationCallback->actuationCallback)(value);
         return;
     }
@@ -607,10 +653,10 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     // DOUBLE
     if (actuationCallback->actuationCallbackArgumentType == 2 && variant.is<double>()) {
         double value = doc["value"];
-        debugVerbose("Called Actuation for Asset:", ' ');
-        debugVerbose(actuationCallback->asset, ',');
-        debugVerbose(" Payload Type: Double, Value:", ' ');
-        debugVerbose(value);
+        instance->debugVerbose("Called Actuation for Asset:", ' ');
+        instance->debugVerbose(actuationCallback->asset, ',');
+        instance->debugVerbose(" Payload Type: Double, Value:", ' ');
+        instance->debugVerbose(value);
         reinterpret_cast<void (*)(double payload)>(actuationCallback->actuationCallback)(value);
         return;
     }
@@ -618,10 +664,10 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     // FLOAT
     if (actuationCallback->actuationCallbackArgumentType == 3 && variant.is<float>()) {
         float value = doc["value"];
-        debugVerbose("Called Actuation for Asset:", ' ');
-        debugVerbose(actuationCallback->asset, ',');
-        debugVerbose(" Payload Type: Float, Value:", ' ');
-        debugVerbose(value);
+        instance->debugVerbose("Called Actuation for Asset:", ' ');
+        instance->debugVerbose(actuationCallback->asset, ',');
+        instance->debugVerbose(" Payload Type: Float, Value:", ' ');
+        instance->debugVerbose(value);
         reinterpret_cast<void (*)(float payload)>(actuationCallback->actuationCallback)(value);
         return;
     }
@@ -629,10 +675,10 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     // CONST CHAR*
     if (actuationCallback->actuationCallbackArgumentType == 4 && variant.is<char*>()) {
         const char* value = doc["value"];
-        debugVerbose("Called Actuation for Asset:", ' ');
-        debugVerbose(actuationCallback->asset, ',');
-        debugVerbose(" Payload Type: const char*, Value:", ' ');
-        debugVerbose(value);
+        instance->debugVerbose("Called Actuation for Asset:", ' ');
+        instance->debugVerbose(actuationCallback->asset, ',');
+        instance->debugVerbose(" Payload Type: const char*, Value:", ' ');
+        instance->debugVerbose(value);
         reinterpret_cast<void (*)(const char* payload)>(actuationCallback->actuationCallback)(value);
         return;
     }
@@ -640,23 +686,23 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     // STRING
     if (actuationCallback->actuationCallbackArgumentType == 5 && variant.is<char*>()) {
         String value = doc["value"];
-        debugVerbose("Called Actuation for Asset:", ' ');
-        debugVerbose(actuationCallback->asset, ',');
-        debugVerbose(" Payload Type: String, Value:", ' ');
-        debugVerbose(value);
+        instance->debugVerbose("Called Actuation for Asset:", ' ');
+        instance->debugVerbose(actuationCallback->asset, ',');
+        instance->debugVerbose(" Payload Type: String, Value:", ' ');
+        instance->debugVerbose(value);
         reinterpret_cast<void (*)(String payload)>(actuationCallback->actuationCallback)(value);
         return;
     }
     
     // JSON ARRAY
     if (variant.is<JsonArray>()) {
-        debug("Receiving Arrays is not yet supported!");
+        instance->debug("Receiving Arrays is not yet supported!");
         return;
     }
     
     // JSON OBJECT
     if (variant.is<JsonObject>()) {
-        debug("Receiving Objects is not yet supported!");
+        instance->debug("Receiving Objects is not yet supported!");
         return;
     }
 }
@@ -727,14 +773,3 @@ template void Device::send(char *asset, String payload);
 template void Device::send(char *asset, int payload);
 template void Device::send(char *asset, float payload);
 template void Device::send(char *asset, double payload);
-
-#define __HAS_IMPLEMENTATION // Prevents error if no devices are supported by SDK
-#endif //(starts from #ifdef ARDUINO_ESP8266_NODEMCU)
-
-#ifndef __HAS_IMPLEMENTATION
-Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {
-    #error "Currently, only ESP8266 and ESP8266 Dev boards are supported. This will change shortly."
-
-}
-#undef __HAS_IMPLEMENTATION
-#endif

@@ -1,4 +1,4 @@
-# Syntax Coloring Map for AllThingsTalk SDK
+# Syntax Coloring Map for AllThingsTalk WiFi SDK
 
 # Datatypes (KEYWORD1)
 

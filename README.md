@@ -1,17 +1,21 @@
-# AllThingsTalk Arduino SDK v2
+# AllThingsTalk Arduino WiFi SDK
 
-AllThingsTalk Arduino Library for WiFi Devices - makes connecting devices with [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
+<img align="right" width="250" height="148" src="extras/wifi-logo.png">
 
-
-Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello World!` to a String asset on AllThingsTalk Maker:
+AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
+  
+  
+  
+  
+Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello World!` to your AllThingsTalk Maker:
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("WiFi-SSID", "WiFi-Password");
 auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
-void setup() { device.init(); device.send("Your-Sensor-Asset", "Hello World!"); }
-void loop() { device.loop(); }
+void setup() device.init(); device.send("Sensor-Asset", "Hello World!");
+void loop() device.loop();
 ```
 
 That’s how easy it is!
@@ -35,10 +39,9 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     * [Define Your Own Connection LED Pin](#define-your-own-connection-led-pin)
     * [Disable Connection LED](#disable-connection-led)
   * [WiFi Signal Reporting](#wifi-signal-reporting)
-    * [Showing WiFi Signal Strength](#showing-wifi-signal-strength)
+    * [Enable WiFi Signal Reporting](#enable-wifi-signal-reporting)
     * [Custom Reporting Interval](#custom-reporting-interval)
     * [WiFi Signal Strength On-Demand](#wifi-signal-strength-on-demand)
-    * [Disable WiFi Signal Reporting](#disable-wifi-signal-reporting)
 * [Sending Data](#sending-data)
   * [JSON](#json)
   * [CBOR](#cbor)
@@ -48,36 +51,34 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
 * [Debug](#debug)
   * [Enable Debug Output](#enable-debug-output)
   * [Enable Verbose Debug Output](#enable-verbose-debug-output)
-* [Notes](#notes)
+* [Troubleshooting and Notes](#troubleshooting-and-notes)
 <!--te-->
 
 # Installation
-- **Install AllThingsTalk SDK**
-    - [Download the library as ZIP file](https://github.com/AllThingsTalk/Arduino-SDK-v2/archive/master.zip)
-    - Unzip it and remove “-master” from the folder name
-    - Copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*)
-- **Install Dependencies**
-    - Open Arduino IDE and go to *Tools* > *Manage Libraries*
-    - Search for and download “**ArduinoJson**” by Benoit Blanchon
-- **Restart your Arduino IDE**
 
-You can now add this library in your sketch by going to *Sketch > Include Library > AllThingsTalk* or by adding *<AllThingsTalk.h>* in your sketch.  
-Make sure to play with examples included in this library by going to *File > Examples > AllThingsTalk*
+- **Install AllThingsTalk WiFi SDK:**  
+    - In Arduino IDE, go to *Tools* > *Manage Libraries*
+    - Search for and download "**AllThingsTalk WiFi SDK**" by AllThingsTalk
+- **Install Dependencies:**  
+	This library has a few dependencies, so while your Library Manager is open:
+    - Search for and download “**ArduinoJson**” by Benoit Blanchon
+    - If you're going to use this SDK for Arduino MKR1010, also search for and download:
+        - "**WiFiNINA**" by Arduino
+        - "**Scheduler**" by Arduino
+
+Done! Utilize this library in your sketch by going to *Sketch > Include Library > AllThingsTalk WiFi SDK* or by adding *<AllThingsTalk_WiFi.h>* in your sketch.  
+**Make sure to play with examples included** in this library by going to *File > Examples > AllThingsTalk WiFi SDK*
+
+> If you want to install this SDK manually, [download the library as zip file](https://github.com/allthingstalk/arduino-wifi-sdk/archive/master.zip), unzip it and copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*). Install dependencies normally as stated above.
 
 ## Board Support
 The library automatically recognizes supported Arduino boards and uses adequate version of itself.  
 Library currently has **full** support for these boards:
 
-- **ESP8266** (this includes all ESP8266-based dev boards)
+- **[ESP8266](http://esp8266.net/)** (includes all ESP8266-based boards)
+- **[Arduino MKR WiFi 1010](https://store.arduino.cc/mkr-wifi-1010)**
 
-
-Support is planned for the following boards:
-
-- ESP32
-- Arduino MKR 1000
-- Arduino MKR 1010
-- Arduino Generic with Ethernet Shield
-
+Support is planned for ESP32 and MKR1000. Feel free to create pull requests any time.
 
 # Connecting
 
@@ -88,13 +89,13 @@ The library takes care about initialization and maintaining WiFi and connection 
 At the beginning of your sketch (before `setup()`), make sure to include this library and define your credentials:
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("Your-WiFi-SSID","Your-WiFi-Password");
 auto deviceCreds = DeviceConfig("Your-Device-ID","Your-Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
 ```
 
-> To get your **Device ID** and **Device Token**, go to your [AllThingsTalk Maker](https://maker.allthingstalk.com) devices, choose your device and click “*Settings*”, then choose “*Authentication*” and copy "Device ID" and a “Device Token”.
+> To get your **Device ID** and **Device Token**, go to your [AllThingsTalk Maker](https://maker.allthingstalk.com) devices, choose your device and click “*Settings*”, then choose “*Authentication*” and copy "Device ID" and “Device Tokens” values.
 
 > From here and on, this part of the code won’t be shown in the examples below as it’s assumed you already have it.
 
@@ -121,7 +122,7 @@ const char* DEVICE_TOKEN  = "Your-Device-Token";
 Then, make sure to change the top of your sketch to include **keys.h** and use the variables defined in it:
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 #include "keys.h" // Include our newly created file
 auto wifiCreds = WifiCredentials(WIFI_SSID, WIFI_PASSWORD);
 auto deviceCreds = DeviceConfig(DEVICE_ID, DEVICE_TOKEN);
@@ -234,32 +235,42 @@ void setup() {
 
 ## WiFi Signal Reporting
 
-This library automatically reports WiFi Signal Strength to your AllThingsTalk Maker every 5 minutes by default.  
+This library has the ability to automatically report WiFi Signal Strength to your AllThingsTalk Maker (defaults to every 5 minutes).  
 The strength is presented as `Excellent`, `Good`, `Decent`, `Bad` and `Horrible`, depending on the quality of your WiFi Connection.
 
 >If your device reports to AllThingsTalk only based on some physical state change and you don't see any updates for some time, you don't have a way of knowing if the device unexpectedly went offline, since you'd just think the state didn't change.
 > Fortunately, a side-effect of WiFi Signal Reporting is that you can use it with AllThingsTalk **Watchdog**, so you can be sure your device went offline for some reason if it doesn't report back at the predefined WiFi Signal Reporting interval.
 > Setup Watchdog by going to your AllThingsTalk Maker > *Your Device* > Settings > Watchdog 
 
-### Showing WiFi Signal Strength
+### Enable WiFi Signal Reporting
 
-To show WiFi Signal Strength, create a *Sensor* asset on your AllThingsTalk Maker device named `wifi-signal` of type `String`
+> **IMPORTANT:** It's important that you first create a *Sensor* asset on your AllThingsTalk Maker device named **`wifi-signal`** of type **`String`** to which the device will publish the data.
 
-### Custom Reporting Interval
-
-By default, the library publishes the WiFi Signal Strength to your AllThingsTalk Maker every 5 minutes (300 seconds).  
-You can override this by defining your custom interval (in seconds) using `wifiSignalReporting(seconds)` in your `setup()` function before initialization:
+This feature is off by default, so if you wish to enable it, simply call `wifiSignalReporting(true)` in your `setup()` function (preferably before initialization):
 
 ```cpp
 void setup() {
-  device.wifiSignalReporting(seconds);
+  device.wifiSignalReporting(true);
   device.init();
 }
 ```
 
-This feature can also be defined as `wifiSignalReporting(true, seconds)`  
+> You can enable and disable WiFi Signal Reporting **anywhere** in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
 
-> You can call `wifiSignalReporting` **anywhere** in your sketch if you wish to change its values during operation.
+### Custom Reporting Interval
+
+By default, the library publishes the WiFi Signal Strength to your AllThingsTalk Maker every 5 minutes (300 seconds).  
+You can override this by defining your custom interval (in seconds) using `wifiSignalReporting(true, seconds)` in your `setup()` function before initialization:
+
+```cpp
+void setup() {
+  device.wifiSignalReporting(true, seconds);
+  device.init();
+}
+```
+
+
+> You can call `wifiSignalReporting(seconds)` **anywhere** in your sketch if you wish to change its values during operation.
 
 ### WiFi Signal Strength On-Demand
 
@@ -275,19 +286,6 @@ void loop() {
   Serial.println(wifiSignal()); // Prints WiFi signal to serial
 }
 ```
-
-### Disable WiFi Signal Reporting
-
-If you wish to disable this feature, just call `wifiSignalReporting(false)` in your setup function instead:
-
-```cpp
-void setup() {
-  device.wifiSignalReporting(false);
-  device.init();
-}
-```
-
-> You can enable and disable WiFi Signal Reporting **anywhere** in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
 
 
 # Sending Data
@@ -322,14 +320,15 @@ When using JSON to send data, the message is sent immediately upon execution.
 [Read more about CBOR in our Documentation](https://docs.allthingstalk.com/developers/data-formats/#cbor)  
 CBOR is a data format whose design goals include the possibility of extremely small code size, fairly small message size, and extensibility without the need for version negotiation.  
 
-
 > This method uses less data. Use it if you’re working with limited data or bandwidth.  
 > As opposed to JSON data sending, with CBOR, you can build a payload with multiple messages before sending them.
 
-You’ll need to create a `CborPayload` object before being able to send data using CBOR. The beginning of your sketch should therefore contain `CborPayload payload;`
+You’ll need to create a `CborPayload` object before being able to send data using CBOR.  
+By default, the maximum CBOR payload size is **256 bytes**. If needed, you can change that by by using `CborPayload payload(payload_size_in_bytes)` when creating the object.  
+In the end, the beginning of your sketch should therefore contain `CborPayload payload` or `CborPayload payload(payload_size_in_bytes)`:
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("Your-SSID","Your-WiFi-Password");
 auto deviceCreds = DeviceConfig("Your-Device-ID","Your-Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
@@ -367,7 +366,7 @@ In case you want to connect an *off-the-shelf* device or define your own binary 
 You’ll need to create a `BinaryPayload` object before being able to send data using ABCL. The beginning of your sketch should therefore contain `BinaryPayload payload;`
 
 ```cpp
-#include <AllThingsTalk.h>
+#include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("Your-SSID","Your-WiFi-Password");
 auto deviceCreds = DeviceConfig("Your-Device-ID","Your-Device-Token");
 auto device = Device(wifiCreds, deviceCreds);
@@ -479,15 +478,15 @@ void setup() {
 ```
 
 
-# Notes
-- This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/)
-- The PubSubClient library is included with the AllThingsTalk Arduino SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino SDK is made easier and the version of PubSubClient is guaranteed to be compatible.  
+# Troubleshooting and Notes
+- This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/). [Scheduler](https://www.arduino.cc/en/reference/scheduler) and [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) are used as well in case of Arduino MKR WiFi 1010.
+- The PubSubClient library is included with the AllThingsTalk Arduino WiFi SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino WiFi SDK is made easier and the version of PubSubClient is guaranteed to be compatible.  
 This does not interfere with other instances of PubSubClient you might have in your Arduino libraries.
-- If you're using CBOR to send payloads and you're not receiving messages properly on AllThingsTalk, you could be hitting the limit of CBOR payload size. If you wish, you can manually change the limit in CborPayload.h
 - Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
 - Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` way too often. In this case, it is okay to use `delay()` for about 5 to 50 milliseconds (see what works for you) in order to avoid this issue.
+- Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
 - Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in next release.
 - This library has been tested and confirmed to work with:
-    - Arduino 1.8.9
+    - Arduino 1.8.10
     - PubSubClient 2.7.0 (Included)
-    - ArduinoJson 6.11.4
+    - ArduinoJson 6.13
