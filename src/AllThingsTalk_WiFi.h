@@ -115,7 +115,7 @@ private:
     void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length);
     #else
     static Device* instance; // // Internal callback saving for non-ESP devices (e.g. MKR)
-    static void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length); // STATIC JE SAMO ZA MKR
+    static void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length); // Static is only for MKR
     #endif
     static const int maximumActuations = 32;
     ActuationCallback actuationCallbacks[maximumActuations];
