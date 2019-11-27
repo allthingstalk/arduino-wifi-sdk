@@ -3,6 +3,7 @@
 
 
 
+
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
@@ -60,32 +61,30 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
 <!--te-->
 
 # Installation
-- **Install AllThingsTalk WiFi SDK**
-    - [Download the library as ZIP file](https://github.com/allthingstalk/arduino-wifi-sdk/archive/master.zip)
-    - Unzip it and remove “-master” from the folder name
-    - Copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*)
-- **Install Dependencies**
-    - Open Arduino IDE and go to *Tools* > *Manage Libraries*
-    - Search for and download “**ArduinoJson**” by Benoit Blanchon
-    - If you're on MKR1010, also search for and download "WiFiNINA" by Arduino. If not, ignore.
-- **Restart your Arduino IDE**
 
-You can now add this library in your sketch by going to *Sketch > Include Library > AllThingsTalk WiFi SDK* or by adding *<AllThingsTalk_WiFi.h>* in your sketch.  
-Make sure to play with examples included in this library by going to *File > Examples > AllThingsTalk WiFi SDK*
+- **Install AllThingsTalk WiFi SDK**  
+    - In Arduino IDE, go to *Tools* > *Manage Libraries*
+    - Search for and download "**AllThingsTalk WiFi SDK**" by AllThingsTalk
+- **Install Dependencies**
+	This library has a few dependencies, so while your Library Manager is open:
+    - Search for and download “**ArduinoJson**” by Benoit Blanchon
+    - If you're going to use this SDK for Arduino MKR1010, also search for and download:
+        - "**WiFiNINA**" by Arduino
+        - "**Scheduler**" by Arduino
+
+Done! Utilize this library in your sketch by going to *Sketch > Include Library > AllThingsTalk WiFi SDK* or by adding *<AllThingsTalk_WiFi.h>* in your sketch.  
+**Make sure to play with examples included** in this library by going to *File > Examples > AllThingsTalk WiFi SDK*
+
+> If you want to install this SDK manually, [download the library as zip file](https://github.com/allthingstalk/arduino-wifi-sdk/archive/master.zip), unzip it and copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*). Install dependencies normally as stated above.
 
 ## Board Support
 The library automatically recognizes supported Arduino boards and uses adequate version of itself.  
 Library currently has **full** support for these boards:
 
-- **ESP8266** (includes all ESP8266-based boards)
-- **Arduino MKR WiFi 1010**
+- **[ESP8266](http://esp8266.net/)** (includes all ESP8266-based boards)
+- **[Arduino MKR WiFi 1010](https://store.arduino.cc/mkr-wifi-1010)**
 
-Support is planned for the following boards:
-
-- ESP32
-- Arduino MKR 1000
-- Arduino Generic with Ethernet Shield
-
+Support is planned for ESP32 and MKR1000. Feel free to create pull requests any time.
 
 # Connecting
 
@@ -496,4 +495,4 @@ This does not interfere with other instances of PubSubClient you might have in y
 - This library has been tested and confirmed to work with:
     - Arduino 1.8.10
     - PubSubClient 2.7.0 (Included)
-    - ArduinoJson 6.11.4
+    - ArduinoJson 6.13
