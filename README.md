@@ -1,9 +1,3 @@
-
-
-
-
-
-
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
@@ -57,15 +51,15 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
 * [Debug](#debug)
   * [Enable Debug Output](#enable-debug-output)
   * [Enable Verbose Debug Output](#enable-verbose-debug-output)
-* [Notes](#notes)
+* [Troubleshooting and Notes](#troubleshooting-and-notes)
 <!--te-->
 
 # Installation
 
-- **Install AllThingsTalk WiFi SDK**  
+- **Install AllThingsTalk WiFi SDK:**  
     - In Arduino IDE, go to *Tools* > *Manage Libraries*
     - Search for and download "**AllThingsTalk WiFi SDK**" by AllThingsTalk
-- **Install Dependencies**
+- **Install Dependencies:**  
 	This library has a few dependencies, so while your Library Manager is open:
     - Search for and download “**ArduinoJson**” by Benoit Blanchon
     - If you're going to use this SDK for Arduino MKR1010, also search for and download:
@@ -484,7 +478,7 @@ void setup() {
 ```
 
 
-# Notes
+# Troubleshooting and Notes
 - This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/). [Scheduler](https://www.arduino.cc/en/reference/scheduler) and [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) are used as well in case of Arduino MKR WiFi 1010.
 - The PubSubClient library is included with the AllThingsTalk Arduino WiFi SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino WiFi SDK is made easier and the version of PubSubClient is guaranteed to be compatible.  
 This does not interfere with other instances of PubSubClient you might have in your Arduino libraries.
