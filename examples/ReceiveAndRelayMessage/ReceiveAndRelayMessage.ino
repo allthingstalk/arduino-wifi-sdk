@@ -19,12 +19,14 @@
 auto wifiCreds   = WifiCredentials("WiFi-SSID", "WiFi-Password"); // Your WiFi Network Name and Password
 auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");     // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
 auto device      = Device(wifiCreds, deviceCreds);                // Create "device" object
+char* actuator   = "Actuator-Asset";                              // Actuator asset on AllThingsTalk named "actuator"
+char* sensor     = "Sensor-Asset";                                // Sensor asset on AllThingsTalk named "sensor"
 CborPayload payload;                                              // Create CBOR payload object, so we can use CBOR to send data
 
 void setup() {
   Serial.begin(115200);                   // Baud rate: 115200, but you can define any baud rate you want
   device.debugPort(Serial);               // Set AllThingsTalk library to output its debug to "Serial"
-  device.setActuationCallback("Actuator-Asset", actuation);  // Actuator asset on AllThingsTalk named "actuator" will trigger function "actuation" 
+  device.setActuationCallback(actuator, actuation);  // Actuator asset defined above will trigger function "actuation" 
   device.init();                          // Initialize AllThingsTalk
 }
 
@@ -36,6 +38,6 @@ void actuation(String value) {            // Function called when message arrive
   Serial.print("Received message: ");     // Prints to serial output
   Serial.println(value);                  // Prints actual value received to serial output
   payload.reset();                        // Resets the payload
-  payload.set("Sensor-Asset", value);     // Adds "value" received to be sent to asset "sensor" on AllThingsTalk Maker
+  payload.set(sensor, value);             // Adds "value" received to be sent to sensor asset (defined above) on AllThingsTalk Maker
   device.send(payload);                   // Sends the set payload(s)
 }

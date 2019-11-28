@@ -22,7 +22,7 @@
 auto wifiCreds   = WifiCredentials("WiFi-SSID", "WiFi-Password"); // Your WiFi Network Name and Password
 auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");     // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
 auto device      = Device(wifiCreds, deviceCreds);                // Create "device" object
-char* asset      = "Sensor-Asset";                                // Name of your Sensor asset
+char* asset      = "Sensor-Asset";                                // Name of your Sensor asset on AllThingsTalk (of type String)
 
 void setup() {
   Serial.begin(115200);                    // Baud rate: 115200, but you can define any baud rate you want
