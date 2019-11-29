@@ -211,6 +211,9 @@ void Device::loop() {
     if (!disconnectedWiFi) {
         if (WiFi.status() != WL_CONNECTED) {
             maintainWiFi();
+            if (!disconnectedAllThingsTalk) {
+                maintainAllThingsTalk();
+            }
         } else {
             if (!disconnectedAllThingsTalk) {
                 if (!client.connected()) {
@@ -248,7 +251,10 @@ void Device::connectWiFi() {
         debug("Connecting to WiFi:", ' ');
         debug(wifiCreds->getSsid(), '.');
         WiFi.begin(wifiCreds->getSsid(), wifiCreds->getPassword());
-        while (WiFi.status() != WL_CONNECTED) delay(1000); debug("", '.');
+        while (WiFi.status() != WL_CONNECTED) {
+            debug("", '.');
+            delay(2500);
+        }
         debug("");
         debug("Connected to WiFi!");
         debugVerbose("IP Address:", ' ');
@@ -340,7 +346,11 @@ void Device::disconnectAllThingsTalk() {
         client.disconnect();
         disconnectedAllThingsTalk = true;
         while (client.connected()) {}
-        debug("Successfully Disconnected from AllThingsTalk");
+        if (!client.connected()) {
+            debug("Successfully Disconnected from AllThingsTalk");
+        } else {
+            debug("Failed to disconnect from AllThingsTalk");
+        }
     }
 }
 
@@ -379,7 +389,7 @@ void Device::maintainWiFi() {
     debug("Reconnecting to WiFi", ' ');
     while (WiFi.status() != WL_CONNECTED) {
         debug("", '.');
-        delay(5000);
+        delay(2500);
     }
     if (WiFi.status() == WL_CONNECTED) {
         debug("");
