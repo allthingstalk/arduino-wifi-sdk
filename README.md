@@ -489,12 +489,12 @@ This does not interfere with other instances of PubSubClient you might have in y
 - Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in next release.
 - This library has been tested and confirmed to work with:
 
-| Name | Version | Type |
-|--|--|--|
-| Arduino IDE | 1.8.10 | Desktop Software |
-| PubSubClient | 2.7.0 | Library |
-| ArduinoJson | 6.13 | Library |
-| WiFiNINA | 1.4.0 | Library |
-| Scheduler | 0.4.4 | Library |
-| esp8266 | 2.6.1 | Board Driver |
-| Arduino SAMD | 1.8.3 | Board Driver |
+    | Name | Version | Type |
+    |--|--|--|
+    | Arduino IDE | 1.8.10 | Desktop Software |
+    | PubSubClient | 2.7.0 | Library |
+    | ArduinoJson | 6.13 | Library |
+    | WiFiNINA | 1.4.0 | Library |
+    | Scheduler | 0.4.4 | Library |
+    | esp8266 | 2.6.1 | Board Driver |
+    | Arduino SAMD | 1.8.3 | Board Driver |
