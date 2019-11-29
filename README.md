@@ -1,3 +1,4 @@
+
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
@@ -487,6 +488,13 @@ This does not interfere with other instances of PubSubClient you might have in y
 - Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
 - Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in next release.
 - This library has been tested and confirmed to work with:
-    - Arduino 1.8.10
-    - PubSubClient 2.7.0 (Included)
-    - ArduinoJson 6.13
+
+| Name | Version | Type |
+|--|--|--|
+| Arduino IDE | 1.8.10 | Desktop Software |
+| PubSubClient | 2.7.0 | Library |
+| ArduinoJson | 6.13 | Library |
+| WiFiNINA | 1.4.0 | Library |
+| Scheduler | 0.4.4 | Library |
+| esp8266 | 2.6.1 | Board Driver |
+| Arduino SAMD | 1.8.3 | Board Driver |
