@@ -262,23 +262,10 @@ void Device::init() {
 
 // Needs to be run in program loop in order to keep connections alive
 void Device::loop() {
-    if (!disconnectedWiFi) {
-        if (WiFi.status() != WL_CONNECTED) {
-            maintainWiFi();
-            if (!disconnectedAllThingsTalk) {
-                maintainAllThingsTalk();
-            }
-        } else {
-            if (!disconnectedAllThingsTalk) {
-                if (!client.connected()) {
-                    maintainAllThingsTalk();
-                } else if (client.connected()) {
-                    client.loop();
-                    reportWiFiSignal();
-                }
-            }
-        }
-    }
+    maintainWiFi();
+    maintainAllThingsTalk();
+    client.loop();
+    reportWiFiSignal();
     yield();
 }
 
@@ -304,10 +291,11 @@ void Device::connectWiFi() {
         }
         debug("Connecting to WiFi:", ' ');
         debug(wifiCreds->getSsid(), '.');
-        WiFi.begin(wifiCreds->getSsid(), wifiCreds->getPassword());
+        //WiFi.begin(wifiCreds->getSsid(), wifiCreds->getPassword());
         while (WiFi.status() != WL_CONNECTED) {
             debug("", '.');
-            delay(2500);
+            WiFi.begin(wifiCreds->getSsid(), wifiCreds->getPassword());
+            delay(1500);
         }
         debug("");
         debug("Connected to WiFi!");
@@ -316,6 +304,45 @@ void Device::connectWiFi() {
         debugVerbose("WiFi Signal:", ' ');
         debugVerbose(wifiSignal());
         disconnectedWiFi = false;
+    }
+}
+
+void Device::maintainWiFi() {
+    if (!disconnectedWiFi) {
+        if (WiFi.status() != WL_CONNECTED) {
+            connectionLedFadeStart();
+            debug("WiFi Connection Dropped! Reason:", ' ');
+            switch(WiFi.status()) {
+                case 1:
+                    debug("Seems like WiFi is connected, but it's giving an error (WL_CONNECTED)");
+                    break;
+                case 2:
+                    debug("No WiFi Shield Present (WL_NO_SHIELD)");
+                    break;
+                case 3:
+                    debug("WiFi.begin is currently trying to connect... (WL_IDLE_STATUS)");
+                    break;
+                case 4:
+                    debug("SSID Not Available (WL_NO_SSID_AVAIL)");
+                    break;
+                case 5:
+                    debug("WiFi Scan Completed (WL_SCAN_COMPLETED)");
+                    break;
+                case 6:
+                    debug("Connection lost and failed to connect after many attempts (WL_CONNECT_FAILED)");
+                    break;
+                case 7:
+                    debug("Connection Lost (WL_CONNECTION_LOST)");
+                    break;
+                case 8:
+                    debug("Intentionally disconnected from the network (WL_DISCONNECTED)");
+                    break;
+                default:
+                    debug("Unknown");
+                    break;
+            }
+            connectWiFi();
+        }
     }
 }
 
@@ -338,7 +365,7 @@ void Device::connectAllThingsTalk() {
     if (!client.connected()) {
         connectionLedFadeStart();
         connectWiFi();
-        debug("Connecting to AllThingsTalk...");
+        debug("Connecting to AllThingsTalk", ' ');
         while (!client.connected()) {
             if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
                 if (callbackEnabled == true) {
@@ -348,49 +375,61 @@ void Device::connectAllThingsTalk() {
                     client.subscribe(command_topic);
                 }
                 disconnectedAllThingsTalk = false;
+                debug("");
                 debug("Connected to AllThingsTalk!");
                 connectionLedFadeStop();
                 if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
             } else {
-                debug("Failed to connect to AllThingsTalk. Reason:", ' ');
-                switch (client.state()) {
-                    case -4:
-                        debug("Server didn't respond within the keepalive time");
-                        break;
-                    case -3:
-                        debug("Network connection was broken");
-                        break;
-                    case -2:
-                        debug("Network connection failed.");
-                        debugVerbose("This is a general error. Check if the asset you're publishing to exists on AllThingsTalk.");
-                        break;
-                    case -1:
-                        debug("Client disconnected cleanly (intentionally)");
-                        break;
-                    case 0:
-                        debug("Seems like client is connected. Restart device.");
-                        break;
-                    case 1:
-                        debug("Server doesn't support the requested protocol version");
-                        break;
-                    case 2:
-                        debug("Server rejected the client identifier");
-                        break;
-                    case 3:
-                        debug("Server was unable to accept the connection");
-                        break;
-                    case 4:
-                        debug("Bad username or password");
-                        break;
-                    case 5:
-                        debug("Client not authorized to connect");
-                        break;
-                    default:
-                        debug("Unknown");
-                        break;
-                }
-                delay(5000);
+                debug("", '.');
+                delay(1500);
+                yield();
             }
+        }
+    }
+}
+
+void Device::maintainAllThingsTalk() {
+    if (!disconnectedAllThingsTalk) {
+        if (!client.connected()) {
+            connectionLedFadeStart();
+            debug("AllThingsTalk Connection Dropped! Reason:", ' ');
+            switch (client.state()) {
+                case -4:
+                    debug("Server didn't respond within the keepalive time");
+                    break;
+                case -3:
+                    debug("Network connection was broken");
+                    break;
+                case -2:
+                    debug("Network connection failed.");
+                    debugVerbose("This is a general error. Check if the asset you're publishing to exists on AllThingsTalk.");
+                    break;
+                case -1:
+                    debug("Client disconnected cleanly (intentionally)");
+                    break;
+                case 0:
+                    debug("Seems like client is connected. Restart device.");
+                    break;
+                case 1:
+                    debug("Server doesn't support the requested protocol version");
+                    break;
+                case 2:
+                    debug("Server rejected the client identifier");
+                    break;
+                case 3:
+                    debug("Server was unable to accept the connection");
+                    break;
+                case 4:
+                    debug("Bad username or password");
+                    break;
+                case 5:
+                    debug("Client not authorized to connect");
+                    break;
+                default:
+                    debug("Unknown");
+                    break;
+            }
+            connectAllThingsTalk();
         }
     }
 }
@@ -405,61 +444,6 @@ void Device::disconnectAllThingsTalk() {
         } else {
             debug("Failed to disconnect from AllThingsTalk");
         }
-    }
-}
-
-void Device::maintainWiFi() {
-    connectionLedFadeStart();
-    debug("WiFi Connection Dropped! Reason:", ' ');
-    switch(WiFi.status()) {
-        case 1:
-            debug("Seems like WiFi is connected, but it's giving an error (WL_CONNECTED)");
-            break;
-        case 2:
-            debug("No WiFi Shield Present (WL_NO_SHIELD)");
-            break;
-        case 3:
-            debug("WiFi.begin is currently trying to connect... (WL_IDLE_STATUS)");
-            break;
-        case 4:
-            debug("SSID Not Available (WL_NO_SSID_AVAIL)");
-            break;
-        case 5:
-            debug("WiFi Scan Completed (WL_SCAN_COMPLETED)");
-            break;
-        case 6:
-            debug("Connection lost and failed to connect after many attempts (WL_CONNECT_FAILED)");
-            break;
-        case 7:
-            debug("Connection Lost (WL_CONNECTION_LOST)");
-            break;
-        case 8:
-            debug("Intentionally disconnected from the network (WL_DISCONNECTED)");
-            break;
-        default:
-            debug("Unknown");
-            break;
-    }
-    debug("Reconnecting to WiFi", ' ');
-    while (WiFi.status() != WL_CONNECTED) {
-        debug("", '.');
-        delay(2500);
-    }
-    if (WiFi.status() == WL_CONNECTED) {
-        debug("");
-        debug("WiFi Connected!");
-        debug("IP Address:", ' ');
-        debug(WiFi.localIP(), ',');
-        debug(" WiFi Signal:", ' ');
-        debug(wifiSignal());
-        connectionLedFadeStop();
-        disconnectedWiFi = false;
-    }
-}
-
-void Device::maintainAllThingsTalk() {
-    while (!client.connected()) {
-        connectAllThingsTalk();
     }
 }
 
