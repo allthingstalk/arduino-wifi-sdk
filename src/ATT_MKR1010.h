@@ -184,6 +184,7 @@ void Device::connectionLed(bool state, int ledPin) {
 
 void Device::debugPort(Stream &debugSerial) {
     this->debugSerial = &debugSerial;
+    delay(5000);
     debug("");
     debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     debug("Debug Level: Normal");
@@ -192,6 +193,7 @@ void Device::debugPort(Stream &debugSerial) {
 void Device::debugPort(Stream &debugSerial, bool verbose) {
     debugVerboseEnabled = verbose;
     this->debugSerial = &debugSerial;
+    delay(5000);
     debug("");
     debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     if (!verbose) debug("Debug Level: Normal");
