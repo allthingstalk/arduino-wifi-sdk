@@ -36,5 +36,5 @@ void loop() {
   payload.reset();             // Reset the payload
   payload.set(sensor, value);  // Set "value" (counter) to be sent to sensor asset defined above
   device.send(payload);        // Send the payload
-  delay(5000);                 // Wait 5 seconds until repeating
+  delay(3000);                 // Wait 5 seconds until repeating
 }
