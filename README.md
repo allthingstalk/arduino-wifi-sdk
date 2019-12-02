@@ -1,4 +1,5 @@
 
+
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
@@ -19,7 +20,8 @@ void setup() device.init(); device.send("Sensor-Asset", "Hello World!");
 void loop() device.loop();
 ```
 
-That’s how easy it is!
+That’s how easy it is!  
+If you're having issues, [check the troubleshooting section](#troubleshooting-and-notes).
 
 > [AllThingsTalk](https://www.allthingstalk.com) is an accessible IoT Platform for rapid development.  
 In the blink of an eye, you'll be able to extract, visualize and use the collected data.  
@@ -480,21 +482,19 @@ void setup() {
 
 
 # Troubleshooting and Notes
-- This library uses [ArduinoJson by Benoît Blanchon](https://arduinojson.org/) and [PubSubClient by Nick O](https://pubsubclient.knolleary.net/)’[Leary](https://pubsubclient.knolleary.net/). [Scheduler](https://www.arduino.cc/en/reference/scheduler) and [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) are used as well in case of Arduino MKR WiFi 1010.
-- The PubSubClient library is included with the AllThingsTalk Arduino WiFi SDK because the library requires modification of `MQTT_MAX_PACKET_SIZE` in PubSubClient.h beforehand. The modification is required because the default maximum `128` payload size isn't enough to receive bigger messages from your AllThingsTalk Maker. By including the library, installation of AllThingsTalk Arduino WiFi SDK is made easier and the version of PubSubClient is guaranteed to be compatible.  
-This does not interfere with other instances of PubSubClient you might have in your Arduino libraries.
 - Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
 - Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` way too often. In this case, it is okay to use `delay()` for about 5 to 50 milliseconds (see what works for you) in order to avoid this issue.
 - Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
-- Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in next release.
-- This library has been tested and confirmed to work with:
+- Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in a future release.
+- **Important**: SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure** you're working with at least these versions:
 
-    | Name | Version | Type |
-    |--|--|--|
-    | Arduino IDE | 1.8.10 | Desktop Software |
-    | PubSubClient | 2.7.0 | Library |
-    | ArduinoJson | 6.13 | Library |
-    | WiFiNINA | 1.4.0 | Library |
-    | Scheduler | 0.4.4 | Library |
-    | esp8266 | 2.6.1 | Board Driver |
-    | Arduino SAMD | 1.8.3 | Board Driver |
+    | Name | Version | Used for | Type | Description |
+    |--|--|--|--|--|
+    | [Arduino IDE](https://www.arduino.cc/en/Main/Software) | 1.8.10 | All | Desktop Software | Main development environment. |
+    | [esp8266](https://github.com/esp8266/Arduino#installing-with-boards-manager) | 2.6.1 | ESP8266 |  Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with *ESP8266* and *ESP8266*-based devices. |
+    | [Arduino SAMD](https://www.arduino.cc/en/Guide/MKRWiFi1010#toc2) | 1.8.3 | MKR1010 |Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with devices based on SAMD architecture (*MKR1010*). |
+     | [NINA Firmware](https://www.arduino.cc/en/Tutorial/WiFiNINA-FirmwareUpdater) | 1.2.4 | MKR1010 | Arduino MKR1010 WiFi Firmware | Firmware that drives the WiFi module present on the *Arduino MKR1010*. |
+    | [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) | 1.4.0 | MKR1010 | Arduino Library | Enables *Arduino MKR1010* to connect to WiFi.  |
+    | [ArduinoJson](https://arduinojson.org/) | 6.13 | All | Arduino Library | Parsing and building JSON payloads to send/receive from AllThingsTalk. |
+    | [PubSubClient](https://pubsubclient.knolleary.net/) (INCLUDED) | 2.7.0 | All | Arduino Library | Used by this SDK to connect to AllThingsTalk. Already included in this SDK. |
+    | [Scheduler](https://www.arduino.cc/en/Reference/Scheduler) | 0.4.4 | MKR1010 | Arduino Library | Enables 'multithreading' on *Arduino MKR1010*. |
