@@ -491,7 +491,7 @@ void setup() {
     | Name | Version | Used for | Type | Description |
     |--|--|--|--|--|
     | [Arduino IDE](https://www.arduino.cc/en/Main/Software) | 1.8.10 | All | Desktop Software | Main development environment. |
-    | [esp8266](https://github.com/esp8266/Arduino#installing-with-boards-manager) | 2.6.1 | ESP8266 |  Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with *ESP8266* and *ESP8266*-based devices. |
+    | [esp8266](https://github.com/esp8266/Arduino#installing-with-boards-manager) | 2.6.2 | ESP8266 |  Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with *ESP8266* and *ESP8266*-based devices. |
     | [Arduino SAMD](https://www.arduino.cc/en/Guide/MKRWiFi1010#toc2) | 1.8.3 | MKR1010 |Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with devices based on SAMD architecture (*MKR1010*). |
      | [NINA Firmware](https://www.arduino.cc/en/Tutorial/WiFiNINA-FirmwareUpdater) | 1.2.4 | MKR1010 | Arduino MKR1010 WiFi Firmware | Firmware that drives the WiFi module present on the *Arduino MKR1010*. |
     | [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) | 1.4.0 | MKR1010 | Arduino Library | Enables *Arduino MKR1010* to connect to WiFi.  |
