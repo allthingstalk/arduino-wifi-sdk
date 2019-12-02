@@ -263,9 +263,9 @@ void Device::init() {
 // Needs to be run in program loop in order to keep connections alive
 void Device::loop() {
     maintainWiFi();
-    maintainAllThingsTalk();
     client.loop();
     reportWiFiSignal();
+    maintainAllThingsTalk();
     yield();
 }
 
@@ -299,6 +299,7 @@ void Device::connectWiFi() {
         }
         debug("");
         debug("Connected to WiFi!");
+        connectionLedFadeStop();
         debugVerbose("IP Address:", ' ');
         debugVerbose(WiFi.localIP());
         debugVerbose("WiFi Signal:", ' ');
@@ -342,6 +343,9 @@ void Device::maintainWiFi() {
                     break;
             }
             connectWiFi();
+            if (!disconnectedAllThingsTalk) {
+                connectAllThingsTalk();
+            }
         }
     }
 }
@@ -364,9 +368,11 @@ void Device::setHostname(const char* hostname) {
 void Device::connectAllThingsTalk() {
     if (!client.connected()) {
         connectionLedFadeStart();
-        connectWiFi();
-        debug("Connecting to AllThingsTalk", ' ');
+        connectWiFi(); // WiFi needs to be present of course
+        debug("Connecting to AllThingsTalk", '.');
         while (!client.connected()) {
+            yield();
+            maintainWiFi(); // In case WiFi connection is lost while connecting to ATT
             if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
                 if (callbackEnabled == true) {
                     // Build the subscribe topic
@@ -381,9 +387,9 @@ void Device::connectAllThingsTalk() {
                 if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
             } else {
                 debug("", '.');
-                delay(1500);
-                yield();
+                //delay(1500);
             }
+            yield();
         }
     }
 }
