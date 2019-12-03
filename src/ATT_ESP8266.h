@@ -150,10 +150,9 @@ void Device::debugPort(Stream &debugSerial, bool verbose) {
 
 // Generate Unique MQTT ID
 void Device::generateRandomID() {
-    String chipId = "arduino-";
-    chipId += ESP.getChipId();
+    sprintf(mqttId, "%s%i", "arduino-", ESP.getChipId());
     debugVerbose("Unique MQTT ID of Device:", ' ');
-    debugVerbose(randValue);
+    debugVerbose(mqttId);
 }
 
 // Initialization of everything. Run in setup(), only after defining everything else.
