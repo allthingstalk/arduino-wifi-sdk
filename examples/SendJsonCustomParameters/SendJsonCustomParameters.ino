@@ -29,7 +29,7 @@ void setup() {
   Serial.begin(115200);                    // Baud rate: 115200, but you can define any baud rate you want
   device.debugPort(Serial, true);          // Set library to output verbose debug to "Serial" port (defined above)
   device.connectionLed(true, LED_BUILTIN); // Built-in LED defined as Connection LED (LED_BUILTIN is a global variable that specifies the default onboard LED)
-  device.wifiSignalReporting(60);          // Report WiFi Signal every 60 seconds
+  device.wifiSignalReporting(true, 60);          // Report WiFi Signal every 60 seconds
   device.setHostname("ATT-EXAMPLE");       // Sets hostname of the device (Shows up on your WiFi network under this name)
   device.init();                           // Initialize AllThingsTalk
   device.send(asset, "Booted! Hello!");    // Send message "Booted! Hello!" to topic "asset_name"
