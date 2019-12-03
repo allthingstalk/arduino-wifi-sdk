@@ -372,22 +372,27 @@ void Device::connectAllThingsTalk() {
         debug("Connecting to AllThingsTalk", '.');
         while (!client.connected()) {
             yield();
-            maintainWiFi(); // In case WiFi connection is lost while connecting to ATT
-            if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
-                if (callbackEnabled == true) {
-                    // Build the subscribe topic
-                    char command_topic[256];
-                    snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
-                    client.subscribe(command_topic);
-                }
-                disconnectedAllThingsTalk = false;
-                debug("");
-                debug("Connected to AllThingsTalk!");
-                connectionLedFadeStop();
-                if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
-            } else {
+            if (WiFi.status() != WL_CONNECTED) {
+                debug(" "); // Cosmetic only.
+                maintainWiFi(); // In case WiFi connection is lost while connecting to ATT
+            }
+            if (!client.connected()) { // Double check while running to avoid double debug output (because maintainWiFi() also calls this method if ATT isn't connected)
+                if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
+                    if (callbackEnabled == true) {
+                        // Build the subscribe topic
+                        char command_topic[256];
+                        snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
+                        client.subscribe(command_topic); // Subscribe to it
+                    }
+                    disconnectedAllThingsTalk = false;
+                    debug("");
+                    debug("Connected to AllThingsTalk!");
+                    connectionLedFadeStop();
+                    if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
+                } else {
                 debug("", '.');
                 //delay(1500);
+                }
             }
             yield();
         }

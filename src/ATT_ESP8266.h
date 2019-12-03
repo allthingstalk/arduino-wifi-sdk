@@ -290,11 +290,6 @@ void Device::maintainWiFi() {
             connectWiFi();
             if (!disconnectedAllThingsTalk) {
                 connectAllThingsTalk();
-                // izbacuje duple poruke jer zoves maintain wifi
-                // iz connectAllThingsTalk
-                // "Connected to AllThingsTalk" may be seen two times sometimes
-                // because maintainWiFi is also called from connectAllThingsTalk
-                // TODO: Fix, even though it's only a cosmetic issue
             }
         }
     }
@@ -321,23 +316,28 @@ void Device::connectAllThingsTalk() {
         connectWiFi(); // WiFi needs to be present of course
         debug("Connecting to AllThingsTalk", '.');
         while (!client.connected()) {
-            maintainWiFi(); // In case WiFi connection is lost while connecting to ATT
-            if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
-                if (callbackEnabled == true) {
-                    // Build the subscribe topic
-                    char command_topic[256];
-                    snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
-                    client.subscribe(command_topic);
-                }
-                disconnectedAllThingsTalk = false;
-                debug("");
-                debug("Connected to AllThingsTalk!");
-                connectionLedFadeStop();
-                if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
-            } else {
-                debug("", '.');
-                delay(1500);
+            if (WiFi.status() != WL_CONNECTED) {
+                debug(" "); // Cosmetic only.
+                maintainWiFi(); // In case WiFi connection is lost while connecting to ATT
             }
+            if (!client.connected()) { // Double check while running to avoid double debug output (because maintainWiFi() also calls this method if ATT isn't connected)
+                if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
+                    if (callbackEnabled == true) {
+                        // Build the subscribe topic
+                        char command_topic[256];
+                        snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
+                        client.subscribe(command_topic); // Subscribe to it
+                    }
+                    disconnectedAllThingsTalk = false;
+                    debug("");
+                    debug("Connected to AllThingsTalk!");
+                    connectionLedFadeStop();
+                    if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
+                } else {
+                    debug("", '.');
+                    delay(1500);
+                }
+            }                   
         }
     }
 }
