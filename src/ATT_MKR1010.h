@@ -364,7 +364,9 @@ void Device::disconnectWiFi() {
         disconnectAllThingsTalk();
         WiFi.disconnect();
         disconnectedWiFi = true;
-        while (WiFi.status() == WL_CONNECTED) {}
+        while (WiFi.status() == WL_CONNECTED) {
+            delay(1000);
+        }
         debug("Successfully Disconnected from WiFi");
     }
 }
