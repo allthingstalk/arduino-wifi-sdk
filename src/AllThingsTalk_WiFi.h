@@ -159,7 +159,7 @@ private:
     #endif
 
     // MQTT Parameters
-    char mqttId[256];                      // Variable for saving generated client ID
+    char mqttId[32];                       // Variable for saving generated client ID
 
     bool callbackEnabled = true;           // Variable for checking if callback is enabled
     // WiFi Signal Reporting Parameters
