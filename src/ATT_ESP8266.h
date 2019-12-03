@@ -148,13 +148,11 @@ void Device::debugPort(Stream &debugSerial, bool verbose) {
     
 }
 
-// Generate Random MQTT ID - If two same IDs are on one broker, the connection drops
+// Generate Unique MQTT ID
 void Device::generateRandomID() {
-    randomSeed(analogRead(0));
-    long randValue = random(2147483647);
-    snprintf(mqttId, sizeof mqttId, "%s%dl", "arduino-", randValue);
-    debugVerbose("Generated Unique ID for this Device:", ' ');
-    debugVerbose("arduino", '-');
+    String chipId = "arduino-";
+    chipId += ESP.getChipId();
+    debugVerbose("Unique MQTT ID of Device:", ' ');
     debugVerbose(randValue);
 }
 
