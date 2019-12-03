@@ -8,8 +8,8 @@
  * Notes:
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
  * - Create a Sensor asset of type Integer on your AllThingsTalk Maker (You'll receive your analog value here)
- * - Create a Senosr asset named "wifi-signal" of type String on your AllThingsTalk Maker
- * - Change the following things in this example to make it work: 
+ *
+ * These are all the things in this example that you need to change to make it work:
  *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Sensor-Asset
  */
 

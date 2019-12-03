@@ -13,7 +13,8 @@
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
  * - Create a Sensor asset of type String on your AllThingsTalk Maker (You'll receive messages there)
  * - Create a Sensor asset of type String on your AllThingsTalk Maker and name it "wifi-signal"
- * - Change the following things in this example to make it work: 
+ * 
+ * These are all the things in this example that you need to change to make it work:
  *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Sensor-Asset
  */
 

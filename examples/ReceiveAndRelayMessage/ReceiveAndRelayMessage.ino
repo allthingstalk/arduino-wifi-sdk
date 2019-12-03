@@ -10,7 +10,8 @@
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
  * - Create an Actuator asset of type String on your AllThingsTalk Maker (You'll send messages from here)
  * - Create a Sensor asset of type String on your AllThingsTalk Maker (You'll receive your messages back from here)
- * - Change the following things in this example to make it work: 
+ *
+ * These are all the things in this example that you need to change to make it work:
  *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Actuator-Asset, Sensor-Asset
  */
 

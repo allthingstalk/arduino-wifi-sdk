@@ -7,11 +7,11 @@
  * 
  * Notes:
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
- * - [Optional] Create a string asset named "wifi-signal" on your AllThingsTalk Maker to see your device's WiFi Signal Strength
  * - Create an Actuator asset of type Boolean on your AllThingsTalk Maker. We'll use this asset to control the LED.
  * - The Built-In LED of the ESP8266 (and possibly other boards) is inverted by design. 
  *   Because of this, we'll need to use "HIGH" when we want to turn it off and "LOW" when we want it on.
- * - Change the following things in this example to make it work: 
+ *
+ * These are all the things in this example that you need to change to make it work: 
  *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Actuator-Asset, LED_BUILTIN (Change only if this doesn't work for you)
  */
 

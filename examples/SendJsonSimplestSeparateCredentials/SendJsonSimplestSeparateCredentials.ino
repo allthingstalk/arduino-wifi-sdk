@@ -9,9 +9,10 @@
  * Notes:
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
  * - Create a Sensor asset of type String on your AllThingsTalk Maker
- * - Change the following things in this example: 
+ *
+ * These are all the things in this example that you need to change to make it work: 
  *   Sensor-Asset
- * - Edit the "keys.h" file (second tab of your Arduino IDE) and enter your credentials there.
+ *   Edit the "keys.h" file (second tab of your Arduino IDE) and enter your credentials there.
  */
  
 #include <AllThingsTalk_WiFi.h>

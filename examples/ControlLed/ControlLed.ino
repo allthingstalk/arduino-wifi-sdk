@@ -7,12 +7,12 @@
  * 
  * Notes:
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
- * - [Optional] Create a string asset named "wifi-signal" on your AllThingsTalk Maker to see your device's WiFi Signal Strength
  * - Create an Actuator asset of type Boolean on your AllThingsTalk Maker. We'll use this asset to control the LED.
  * - Connect your LED's Negative (-) leg to your board's GND
  * - Connect your LED's Positive (+) leg to an adequate pin on your board
- * - Change the following things in this example to make it work: 
- *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Actuator-Asset, Your-Led-Pin
+ *
+ *  These are all the things in this example that you need to change to make it work:
+ *    WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Actuator-Asset, Your-Led-Pin
  */
 
 #include <AllThingsTalk_WiFi.h>
