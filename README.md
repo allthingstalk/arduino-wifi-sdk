@@ -16,7 +16,7 @@ Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello Wo
 auto wifiCreds = WifiCredentials("WiFiName", "WiFiPassword");
 auto deviceCreds = DeviceConfig("DeviceID", "DeviceToken");
 auto device = Device(wifiCreds, deviceCreds);
-void setup() { device.init(); device.send("SensorAsset", "Hello World!"); }
+void setup() { device.init(); device.send("StringSensorAsset", "Hello World!"); }
 void loop() { device.loop(); }
 ```
 
