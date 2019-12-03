@@ -188,13 +188,23 @@ void Device::init() {
     // Generate MQTT ID
     generateRandomID();
 
-    // Print out the Device ID and Device Token
+    // Print out the Device ID and Device Token in a hidden way (for visual verification)
+    String hiddenDeviceId = deviceCreds->getDeviceId();
+    String hiddenDeviceToken = deviceCreds->getDeviceToken();
+    String lastFourDeviceId = hiddenDeviceId.substring(20);
+    String lastFourDeviceToken = hiddenDeviceToken.substring(41);
+    hiddenDeviceId = hiddenDeviceId.substring(0, 4);
+    hiddenDeviceToken = hiddenDeviceToken.substring(0, 10);
+    hiddenDeviceId += "****************";
+    hiddenDeviceId += lastFourDeviceId;
+    hiddenDeviceToken += "*******************************";
+    hiddenDeviceToken += lastFourDeviceToken;
     debugVerbose("API Endpoint:", ' ');
     debugVerbose(deviceCreds->getHostname());
     debugVerbose("Device ID:", ' ');
-    debugVerbose(deviceCreds->getDeviceId());
+    debugVerbose(hiddenDeviceId);
     debugVerbose("Device Token:", ' ');
-    debugVerbose(deviceCreds->getDeviceToken());
+    debugVerbose(hiddenDeviceToken);
 
     // Set MQTT Connection Parameters
     client.setServer(deviceCreds->getHostname(), 1883);
