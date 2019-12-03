@@ -13,11 +13,11 @@ Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello Wo
 
 ```cpp
 #include <AllThingsTalk_WiFi.h>
-auto wifiCreds = WifiCredentials("WiFi-SSID", "WiFi-Password");
-auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");
+auto wifiCreds = WifiCredentials("WiFiName", "WiFiPassword");
+auto deviceCreds = DeviceConfig("DeviceID", "DeviceToken");
 auto device = Device(wifiCreds, deviceCreds);
-void setup() device.init(); device.send("Sensor-Asset", "Hello World!");
-void loop() device.loop();
+void setup() { device.init(); device.send("SensorAsset", "Hello World!"); }
+void loop() { device.loop(); }
 ```
 
 That’s how easy it is!  
