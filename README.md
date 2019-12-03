@@ -194,17 +194,18 @@ void loop() {
 
 ## Connection LED
 
-The library utilizes the built-in LED of your board to show current WiFi and AllThingsTalk connection status.
+The library utilizes the built-in LED of your board to show current WiFi and AllThingsTalk connection status.  
+This helps you see connection status at a glance and is turned on by default.  
+For more detailed information, use [Debug output](#debug).
 
 ### Connection LED Signals
 
-| **LED status**          | **System status**                                  |
-| ----------------------- | -------------------------------------------------- |
-| Off                     | WiFi and AllThingsTalk are both connected properly |
-| Breathing               | Connecting to WiFi / AllThingsTalk…                |
-| Breathing               | Connection failed. Trying to reconnect…            |
-| Flashes quickly 2 times | Connection to AllThingsTalk and WiFi successful                              |
-
+| **LED status** | **Connection status** |
+| -- | -- |
+| Fading in and out | Connecting/Reconnecting to WiFi/AllThingsTalk |
+| Blinks briefly | Connection successful |
+| Blinks briefly and continues fading | Connected to WiFi but still connecting to AllThingsTalk |
+| Off | Connected to both WiFi and AllThingsTalk |
 
 ### Define Your Own Connection LED Pin
 
