@@ -484,7 +484,7 @@ void setup() {
 
 # Troubleshooting and Notes
 - Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
-- Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` way too often. In this case, it is okay to use `delay()` for about 5 to 50 milliseconds (see what works for you) in order to avoid this issue.
+- Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` sometimes. This is out of our control. It will most fail when reading an analog pin too often. In this case, it is okay to use `delay()` for about 300 or more milliseconds (see what works for you) in order to avoid this issue.
 - Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
 - Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in a future release.
 - **Important**: SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure** you're working with at least these versions:
