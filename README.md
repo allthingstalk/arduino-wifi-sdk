@@ -64,13 +64,15 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     - In Arduino IDE, go to *Tools* > *Manage Libraries*
     - Search for and download "**AllThingsTalk WiFi SDK**" by AllThingsTalk
 - **Install Dependencies:**  
-	This library has a few dependencies, so while your Library Manager is open, install these:
-	| Name | Author | Required for | Version (at least) | 
+	This library has a few dependencies, so while your Library Manager is open, install these:  
+    
+	| Name | Author | Required for | Version (at least) |
 	|--|--|--|--|
 	| **ArduinoJson** | Benoit Blanchon | All Boards | 6.13 |
 	| **WiFiNINA** | Arduino | MKR1010 | 1.4.0 |
-	| **Scheduler** | Arduino | MKR1010 | 0.4.4 |
- - Done!
+	| **Scheduler** | Arduino | MKR1010 | 0.4.4 |  
+
+- Done!
 
 Utilize SDK by adding ***<AllThingsTalk_WiFi.h>*** to your sketch.  
 Play with **[provided examples](/examples)** by going to *File > Examples > AllThingsTalk WiFi SDK*
