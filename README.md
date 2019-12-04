@@ -1,5 +1,6 @@
 
 
+
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
@@ -59,18 +60,20 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
 
 # Installation
 
-- **Install AllThingsTalk WiFi SDK:**  
+- **To install AllThingsTalk WiFi SDK:**  
     - In Arduino IDE, go to *Tools* > *Manage Libraries*
     - Search for and download "**AllThingsTalk WiFi SDK**" by AllThingsTalk
 - **Install Dependencies:**  
-	This library has a few dependencies, so while your Library Manager is open:
-    - Search for and download “**ArduinoJson**” by Benoit Blanchon
-    - If you're going to use this SDK for Arduino MKR1010, also search for and download:
-        - "**WiFiNINA**" by Arduino
-        - "**Scheduler**" by Arduino
+	This library has a few dependencies, so while your Library Manager is open, install these:
+	| Name | Author | Required for | Version (at least) | 
+	|--|--|--|--|
+	| **ArduinoJson** | Benoit Blanchon | All Boards | 6.13 |
+	| **WiFiNINA** | Arduino | MKR1010 | 1.4.0 |
+	| **Scheduler** | Arduino | MKR1010 | 0.4.4 |
+ - Done!
 
-Done! Utilize this library in your sketch by going to *Sketch > Include Library > AllThingsTalk WiFi SDK* or by adding *<AllThingsTalk_WiFi.h>* in your sketch.  
-**Make sure to play with examples included** in this library by going to *File > Examples > AllThingsTalk WiFi SDK*
+Utilize SDK by adding ***<AllThingsTalk_WiFi.h>*** to your sketch.  
+Play with **[provided examples](/examples)** by going to *File > Examples > AllThingsTalk WiFi SDK*
 
 > If you want to install this SDK manually, [download the library as zip file](https://github.com/allthingstalk/arduino-wifi-sdk/archive/master.zip), unzip it and copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*). Install dependencies normally as stated above.
 
@@ -170,9 +173,9 @@ However, if you wish to disconnect and/or connect from either WiFi or AllThingsT
 | -------------------------- | ----------------------------------------------------------------------------- |
 | connect();                 | Connects to **both** WiFi and AllThingsTalk                                   |
 | disconnect();              | Disconnects **both** WiFi and AllThingsTalk                                   |
-| connectWiFi();             | Connects to WiFi                                                              |
+| connectWiFi();             | Connects only to WiFi                                                              |
 | disconnectWiFi();          | Disconnects from AllThingsTalk first (if connected) and then disconnects WiFi |
-| connectAllThingsTalk();    | Connects to WiFi first (if not connected) and then connects to WiFi           |
+| connectAllThingsTalk();    | Connects to WiFi first (if not connected) and then connects to AllThingsTalk           |
 | disconnectAllThingsTalk(); | Disconnects from AllThingsTalk                                                |
 
 > Since you might want to use this to save battery (if running on battery power) or if you’re putting your device in sleep mode, the Connection LED will remain OFF even when disconnected from WiFi or AllThingsTalk because the action was intentional.
@@ -221,7 +224,7 @@ void setup() {
 
 This feature can also be defined as `connectionLed(true, your_led_pin)`
 
-> Custom Connection LED pin needs to be defined before `init()` and **cannot** be changed during operation.
+-  You can change the Connection LED pin during operation by called the method above.
 
 
 ### Disable Connection LED
@@ -235,7 +238,8 @@ void setup() {
   device.init();
 }
 ```
-> Unlike defining the Connection LED Pin, you **can** run  `connectionLed(false)` and `connectionLed(true)` **anywhere** in your sketch, in case you need to enable/disable it during operation.
+- You can use `connectionLed()` (without arguments) to check if the feature is enabled or not.  Method returns boolean **true** or **false**.
+- You can also call  `connectionLed(false)` and `connectionLed(true)` **anywhere** in your sketch, in case you need to enable/disable it during operation.
 
 ## WiFi Signal Reporting
 
@@ -259,7 +263,8 @@ void setup() {
 }
 ```
 
-> You can enable and disable WiFi Signal Reporting **anywhere** in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
+- You can enable and disable WiFi Signal Reporting **anywhere** in your sketch by calling `wifiSignalReporting(true)` or `wifiSignalReporting(false)`
+- You can use `wifiSignalReporting()` (without arguments) to check if the feature is enabled or not.  Method returns boolean **true** or **false**.
 
 ### Custom Reporting Interval
 
@@ -274,7 +279,7 @@ void setup() {
 ```
 
 
-> You can call `wifiSignalReporting(seconds)` **anywhere** in your sketch if you wish to change its values during operation.
+- You can call `wifiSignalReporting(seconds)` **anywhere** in your sketch if you wish to change its value during operation.
 
 ### WiFi Signal Strength On-Demand
 
@@ -295,7 +300,6 @@ void loop() {
 # Sending Data
 
 You can send data to AllThingsTalk in 3 different ways using the library.  
-Let’s check them out.
 
 ## JSON
 
@@ -308,15 +312,15 @@ JSON is a lightweight data-interchange format which is easy for humans to read a
 In order to send a JSON message, just add the following line to your code:
 
 ```cpp
-device.send("asset_name", "Hello there!");
+device.send("asset_name", value);
 ```
 
 - `asset_name` is the name of asset on your AllThingsTalk Maker.  
-  This value needs to be `char*` if you’re defining it as a variable.
-- `Hello there!` is the message that’ll be sent to the specified asset.  
-  This value can be of any type. (In this case it's string)
+  This argument is of type `char*`, in case you’re defining it as a variable.
+- `value` is the data that’ll be sent to the specified asset. It can be of any type.
 
-When using JSON to send data, the message is sent immediately upon execution.
+When using JSON to send data, the message is sent immediately upon execution.  
+`device.send()` returns boolean **true** or **false** depending on if the message went through or not.
 
 ## CBOR
 
@@ -329,7 +333,7 @@ CBOR is a data format whose design goals include the possibility of extremely sm
 
 You’ll need to create a `CborPayload` object before being able to send data using CBOR.  
 By default, the maximum CBOR payload size is **256 bytes**. If needed, you can change that by by using `CborPayload payload(payload_size_in_bytes)` when creating the object.  
-In the end, the beginning of your sketch should therefore contain `CborPayload payload` or `CborPayload payload(payload_size_in_bytes)`:
+The beginning of your sketch should therefore contain `CborPayload payload` or `CborPayload payload(payload_size_in_bytes)`:
 
 ```cpp
 #include <AllThingsTalk_WiFi.h>
@@ -349,12 +353,14 @@ payload.set("asset_2", value2);
 device.send(payload);
 ```
 
-- `payload.reset()` clears the message queue, so you’re sure what you’re about to send is the only thing that’s going to be sent.
+- `payload.reset()` clears the message queue, so you’re sure what you’re about to send is the only thing that’s going to be sent.  
 - `payload.set("asset_name", value)` adds a message to queue. 
-    -  `asset_name` is the name of asset on your AllThingsTalk Maker.
-    -  `value` is the value you want to send.
-    You can add multiple messages (payloads) before actually sending them to AllThingsTalk.
-- `device.send(payload)` sends everything in message queue to AllThingsTalk.
+	You can add as many messages (payloads) as you like, before actually sending them to AllThingsTalk.
+    -  `asset_name` is the name of asset on your AllThingsTalk Maker.  
+       This argument is of type `char*`, in case you’re defining it as a variable.
+    -  `value` is the data you want to send. It can be of any type.
+    
+- `device.send(payload)` sends everything in message queue to AllThingsTalk. It also returns boolean **true** or **false** depending on if the message went through or not.
 
 ## ABCL
 
@@ -388,20 +394,24 @@ device.send(payload);
 ```
 
 - `payload.reset()` clears the message queue, so you’re sure what you’re about to send is the only thing that’s going to be sent.
-- `payload.set(value)` adds a message to queue. 
-    -  `value` is the value you want to send.
-    You can add multiple messages (payloads) before actually sending them to AllThingsTalk.
-- `device.send(payload)` sends everything in message queue to AllThingsTalk.
+- `payload.set(value)` adds a message to queue.  
+  You can add as many messages (payloads) as you like before actually sending them to AllThingsTalk.
+    -  `value` is the value you want to send. It can be of any type.  
+- `device.send(payload)` sends everything in message queue to AllThingsTalk. It also returns boolean **true** or **false** depending on if the message went through or not.
 
 
 # Receiving data
 ## Actuation Callbacks
 
 Actuation Callbacks call your functions once a message arrives from your AllThingsTalk Maker to your device on a specified asset.  
-For each *Actuator* asset you have on your AllThingsTalk Maker device, you can add an actuation callback in your `setup()` function by adding `setActuationCallback("Your-Actuator-Asset-Name", YourFunction)`  
+For each *Actuator* asset you have on your AllThingsTalk Maker device, you can add an actuation callback in your `setup()` function (or anywhere else if you wish) by adding `setActuationCallback("Your-Actuator-Asset-Name", YourFunction)`  
 To receive data, simply create functions that utilize your desired type of data.  
 
->Your function argument can be of any type, just make sure to match your function argument type with your *Actuator* asset type on AllThingsTalk Maker. 
+- Your function argument can be of any type (SDK automatically adjusts).  
+  Just make sure to match your function argument type with your *Actuator* asset type on AllThingsTalk Maker. 
+- You're able to call `setActuationCallback("asset", YourFunction)` anywhere in your sketch to add a new Actuation Callback during runtime.  
+- Returns boolean **true** if it was successful and **false** if it failed.
+- You can define up to 32 Actuation Callbacks.
 
 **Example:**
 
@@ -416,12 +426,12 @@ void setup() {
   device.init();               // Initializes AllThingsTalk and WiFi Connection
 }
 
-void myActuation1(String data) {
+void myActuation1(String data) { // Called when a message from "your-asset-1" is received
   Serial.print("You've received a message from AllThingsTalk: ");
   Serial.println(data);        // Prints the received String data
 }
 
-void myActuation2(bool data) {
+void myActuation2(bool data) { // Called when a message from "your-asset-2" is received
   if (data) {
     digitalWrite(LED_PIN, HIGH); // Turns on LED
   } else {
@@ -435,10 +445,6 @@ void loop() {
 
 This means that each time a message arrives from your *Actuator* asset `your-asset-1` from AllThingsTalk Maker, your function `myActuation1` will be called and the message (actual data) will be forwarded to it as an argument.  
 In this case, if your device receives a string value `Hello there!` on asset `your-asset-1`, the received message will be printed via Serial and if it receives value `true` on asset `your-asset-2`, the LED will be turned on. (You would change LED_PIN to a real pin on your board).
-
-> You can call `setActuationCallback` anywhere in your sketch and it will add a new Actuation Callback.
-> You can define up to 32 Actuation Callbacks.
-
 
 # Debug
 
