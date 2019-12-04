@@ -54,35 +54,38 @@ public:
     void debugPort(Stream &debugSerial, bool verbose);
     
     // Sending Data
-    void send(CborPayload &payload);
-    void send(BinaryPayload &payload);
-    template<typename T> void send(char *asset, T payload);
+    bool send(CborPayload &payload);
+    bool send(BinaryPayload &payload);
+    template<typename T> bool send(char *asset, T payload);
     
     // Connection
     void connect();
     void disconnect();
     void connectWiFi();
     #ifdef ESP8266
-    void setHostname(String hostname);
+    bool setHostname(String hostname);
     #else
-    void setHostname(const char* hostname);
+    bool setHostname(const char* hostname);
     #endif
     void disconnectWiFi();
     void connectAllThingsTalk();
     void disconnectAllThingsTalk();
     
     // Connection LED
-    void connectionLed(bool);
-    void connectionLed(int ledPin);
-    void connectionLed(bool state, int ledPin);
+    bool connectionLed(); // Use to check if connection LED is enabled
+    bool connectionLed(bool);
+    bool connectionLed(int ledPin);
+    bool connectionLed(bool state, int ledPin);
     
     // WiFi Signal Reporting
-    void wifiSignalReporting(bool);
-    void wifiSignalReporting(int time);
-    void wifiSignalReporting(bool state, int time);
+    bool wifiSignalReporting(); // Use to check if WiFi Signal Reporting is enabled
+    bool wifiSignalReporting(bool);
+    bool wifiSignalReporting(int time);
+    bool wifiSignalReporting(bool state, int time);
     String wifiSignal();
 
     // Callbacks (Receiving Data)
+    // These will return 
     bool setActuationCallback(String asset, void (*actuationCallback)(bool payload));
     bool setActuationCallback(String asset, void (*actuationCallback)(int payload));
     bool setActuationCallback(String asset, void (*actuationCallback)(double payload));
@@ -160,8 +163,8 @@ private:
 
     // MQTT Parameters
     char mqttId[32];                       // Variable for saving generated client ID
-
     bool callbackEnabled = true;           // Variable for checking if callback is enabled
+
     // WiFi Signal Reporting Parameters
     char* wifiSignalAsset   = "wifi-signal"; // Asset name on AllThingsTalk for WiFi Signal Reporting
     bool rssiReporting      = false;       // Default value for WiFi Signal Reporting
@@ -172,8 +175,8 @@ private:
     bool debugVerboseEnabled = false;
 
     // Connection parameters
-    bool disconnectedWiFi;                 // True when user intentionally disconnects
-    bool disconnectedAllThingsTalk;        // True when user intentionally disconnects
+    bool disconnectedWiFi;                 // True when it's intentionally disconnected
+    bool disconnectedAllThingsTalk;        // True when it's intentionally disconnected
     #ifdef ESP8266
     String wifiHostname;                   // WiFi Hostname itself
     #else

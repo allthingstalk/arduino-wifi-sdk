@@ -156,30 +156,52 @@ void Device::connectionLedFade() {
     yield();
 }
 
-void Device::wifiSignalReporting(bool state) {
+bool Device::wifiSignalReporting() {
+    if (rssiReporting) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Device::wifiSignalReporting(bool state) {
     rssiReporting = state;
+    return true;
 }
 
-void Device::wifiSignalReporting(int time) {
+bool Device::wifiSignalReporting(int time) {
     rssiReportInterval = time;
+    return true;
 }
 
-void Device::wifiSignalReporting(bool state, int time) {
+bool Device::wifiSignalReporting(bool state, int time) {
     rssiReportInterval = time;
     rssiReporting = state;
+    return true;
 }
 
-void Device::connectionLed(bool state) {
+bool Device::connectionLed() {
+    if (ledEnabled) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Device::connectionLed(bool state) {
     ledEnabled = state;
+    return true;
 }
 
-void Device::connectionLed(int ledPin) {
+bool Device::connectionLed(int ledPin) {
     connectionLedPin = ledPin;
+    return true;
 }
 
-void Device::connectionLed(bool state, int ledPin) {
+bool Device::connectionLed(bool state, int ledPin) {
     connectionLedPin = ledPin;
     ledEnabled = state;
+    return true;
 }
 
 void Device::debugPort(Stream &debugSerial) {
@@ -261,7 +283,6 @@ void Device::init() {
     // Set MQTT Connection Parameters
     client.setServer(deviceCreds->getHostname(), 1883);
     if (callbackEnabled == true) {
-        //client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
         client.setCallback(Device::mqttCallback);
     }
     
@@ -300,7 +321,6 @@ void Device::connectWiFi() {
         }
         debug("Connecting to WiFi:", ' ');
         debug(wifiCreds->getSsid(), '.');
-        //WiFi.begin(wifiCreds->getSsid(), wifiCreds->getPassword());
         while (WiFi.status() != WL_CONNECTED) {
             debug("", '.');
             WiFi.begin(wifiCreds->getSsid(), wifiCreds->getPassword());
@@ -371,9 +391,10 @@ void Device::disconnectWiFi() {
     }
 }
 
-void Device::setHostname(const char* hostname) {
+bool Device::setHostname(const char* hostname) {
     wifiHostname = hostname;
     wifiHostnameSet = true;
+    return true;
 }
 
 void Device::connectAllThingsTalk() {
@@ -726,38 +747,44 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
 // }
 
 // Send data as CBOR
-void Device::send(CborPayload &payload) {
+bool Device::send(CborPayload &payload) {
     if (WiFi.status() == WL_CONNECTED) {
         if (client.connected()) {
             char topic[128];
             snprintf(topic, sizeof topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/state");
             client.publish(topic, payload.getBytes(), payload.getSize());
             debug("> Message Published to AllThingsTalk (CBOR)");
+            return true;
         } else {
             debug("Can't publish message because you're not connected to AllThingsTalk");
+            return false;
         }
     } else {
         debug("Can't publish message because you're not connected to WiFi");
+        return false;
     }
 }
 
 // Send data as Binary Payload
-void Device::send(BinaryPayload &payload) {
+bool Device::send(BinaryPayload &payload) {
     if (WiFi.status() == WL_CONNECTED) {
         if (client.connected()) {
             char topic[128];
             snprintf(topic, sizeof topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/state");
             client.publish(topic, payload.getBytes(), payload.getSize());
             debug("> Message Published to AllThingsTalk (Binary Payload)");
+            return true;
         } else {
             debug("Can't publish message because you're not connected to AllThingsTalk");
+            return false;
         }
     } else {
         debug("Can't publish message because you're not connected to WiFi");
+        return false;
     }
 }
 
-template<typename T> void Device::send(char *asset, T payload) {
+template<typename T> bool Device::send(char *asset, T payload) {
     if (WiFi.status() == WL_CONNECTED) {
         if (client.connected()) {
             char topic[128];
@@ -772,18 +799,21 @@ template<typename T> void Device::send(char *asset, T payload) {
             debugVerbose(asset, ',');
             debugVerbose(" Value:", ' ');
             debugVerbose(payload);
+            return true;
         } else {
             debug("Can't publish message because you're not connected to AllThingsTalk");
+            return false;
         }
     } else {
         debug("Can't publish message because you're not connected to WiFi");
+        return false;
     }
 }
 
-template void Device::send(char *asset, bool payload);
-template void Device::send(char *asset, char *payload);
-template void Device::send(char *asset, const char *payload);
-template void Device::send(char *asset, String payload);
-template void Device::send(char *asset, int payload);
-template void Device::send(char *asset, float payload);
-template void Device::send(char *asset, double payload);
+template bool Device::send(char *asset, bool payload);
+template bool Device::send(char *asset, char *payload);
+template bool Device::send(char *asset, const char *payload);
+template bool Device::send(char *asset, String payload);
+template bool Device::send(char *asset, int payload);
+template bool Device::send(char *asset, float payload);
+template bool Device::send(char *asset, double payload);
