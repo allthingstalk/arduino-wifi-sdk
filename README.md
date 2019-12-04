@@ -224,9 +224,8 @@ void setup() {
 }
 ```
 
-This feature can also be defined as `connectionLed(true, your_led_pin)`
-
--  You can change the Connection LED pin during operation by called the method above.
+- This feature can also be defined as `connectionLed(true, your_led_pin)`
+- You can change the Connection LED pin during operation by called the method above.
 
 
 ### Disable Connection LED
@@ -473,9 +472,22 @@ That’s it! You should now see debug information from the library along with yo
 
 ## Enable Verbose Debug Output
 
-By enabling the debug as shown above, you’re getting normal debug output level.  
-If you wish to enable verbose debug output (which outputs a lot more useful information about behind-the-scene operations) you can do that by adding a `true` argument to the existing `debugPort(Serial)` method.
+By enabling debug output as shown previously, you’re getting normal debug output level.  
+If you wish to see more information, you can use Verbose Debug Output, which shows:  
+- Unique Generated MQTT ID
+- API Endpoint
+- Device ID (masked)
+- Device Token (masked)
+- IP Address
+- WiFi Signal Strength
+- Raw MQTT Topics
+- Raw JSON Payloads
+- Extracted message arrival times
+- Extracted asset names (shows even if there's no actuation callback defined)
+- Detailed information on Actuation Callbacks (when added and when called)
+- Functions linked to Actuation Callbacks along with values and data types
 
+To enable Verbose Debug Output, add a `true` argument to the existing `debugPort(Serial)` method.
 
 > Enabling verbose debug output instead of normal debug output can help you significantly when troubleshooting your code.
 
