@@ -1,6 +1,7 @@
 
 
 
+
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
@@ -59,6 +60,10 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
 <!--te-->
 
 # Installation
+
+> **NOTICE: Until Arduino approves this SDK into their Library Manager, use this method:**  
+> [Download the library as zip file](https://github.com/allthingstalk/arduino-wifi-sdk/archive/master.zip), unzip it and copy the folder to your Arduino libraries folder (most likely *Documents > Arduino > libraries*).  
+> Install dependencies normally as stated below.
 
 - **To install AllThingsTalk WiFi SDK:**  
     - In Arduino IDE, go to *Tools* > *Manage Libraries*
