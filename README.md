@@ -472,6 +472,8 @@ That’s it! You should now see debug information from the library along with yo
 
 ## Enable Verbose Debug Output
 
+> Enabling Verbose Debug Output can help you significantly when troubleshooting your code.
+
 By enabling debug output as shown previously, you’re getting normal debug output level.  
 If you wish to see more information, you can use Verbose Debug Output, which shows:  
 - Unique Generated MQTT ID
@@ -487,16 +489,14 @@ If you wish to see more information, you can use Verbose Debug Output, which sho
 - Detailed information on Actuation Callbacks (when added and when called)
 - Functions linked to Actuation Callbacks along with values and data types
 
-To enable Verbose Debug Output, add a `true` argument to the existing `debugPort(Serial)` method.
-
-> Enabling verbose debug output instead of normal debug output can help you significantly when troubleshooting your code.
+To enable Verbose Debug Output, add `true` argument to the existing `debugPort(Serial)` method.
 
 **Example:**
 
 ```cpp
 void setup() {
   Serial.begin(115200);
-  device.debugPort(Serial, true);
+  device.debugPort(Serial, true); // Verbose Debug Output is now enabled
   device.init();
 }
 ```
