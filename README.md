@@ -1,6 +1,7 @@
 
 
 
+
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
@@ -38,6 +39,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     * [Custom AllThingsTalk Space](#custom-allthingstalk-space)
   * [Maintaining Connection](#maintaining-connection)
   * [Connecting and Disconnecting](#connecting-and-disconnecting)
+  * [Setting Hostname](#setting-hostname)
   * [Connection LED](#connection-led)
     * [Connection LED Signals](#connection-led-signals)
     * [Define Your Own Connection LED Pin](#define-your-own-connection-led-pin)
@@ -194,6 +196,17 @@ void loop() {
   device.disconnect(); // Disconnect from both WiFi and AllThingsTalk
   delay(5000);         // Wait 5 seconds
   device.connect();    // Connects to both WiFi and AllThingsTalk
+}
+```
+
+## Setting Hostname
+You can set the hostname for your device which is how it will be presented on the WiFi network by using `setHostname("YOUR_HOSTNAME")` before `device.init()`.
+
+Example:
+```cpp
+void setup() {
+  device.setHostname("MyDevice");
+  device.init();
 }
 ```
 
