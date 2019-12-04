@@ -466,16 +466,15 @@ void setup() {
 }
 ```
 
-That’s it! You should now see debug information from the library along with your serial output (if you have some).
+That’s it! You should now see debug information from the library along with your serial output (if you have any).
 
 > When enabling Debug Output, make sure to define it before anything else from this library, so you can see all output from the library.
 
 ## Enable Verbose Debug Output
 
 > Enabling Verbose Debug Output can help you significantly when troubleshooting your code.
-
-By enabling debug output as shown previously, you’re getting normal debug output level.  
-If you wish to see more information, you can use Verbose Debug Output, which shows:  
+ 
+If you wish to see more information, you can use Verbose Debug Output which, in addition to Normal Debug Output, shows:  
 - Unique Generated MQTT ID
 - API Endpoint
 - Device ID (masked)
@@ -488,8 +487,9 @@ If you wish to see more information, you can use Verbose Debug Output, which sho
 - Extracted asset names (shows even if there's no actuation callback defined)
 - Detailed information on Actuation Callbacks (when added and when called)
 - Functions linked to Actuation Callbacks along with values and data types
+- and more...
 
-To enable Verbose Debug Output, add `true` argument to the existing `debugPort(Serial)` method.
+Enable Verbose Debug Output by adding argument `true` to the existing `debugPort(Serial)` method.
 
 **Example:**
 
