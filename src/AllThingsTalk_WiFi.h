@@ -112,6 +112,7 @@ private:
     void maintainWiFi();
     void maintainAllThingsTalk();
     void reportWiFiSignal();
+    void showMaskedCredentials();
 
     // Actuations / Callbacks
     #ifdef ESP8266
@@ -129,7 +130,6 @@ private:
     // Connection Signal LED Parameters
     #define UP 1
     #define DOWN 0
-    
     #ifdef ESP8266
     bool ledEnabled                  = true;    // Default state for Connection LED
     int connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
