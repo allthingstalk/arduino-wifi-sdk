@@ -156,6 +156,7 @@ void Device::connectionLedFade() {
     yield();
 }
 
+// Used to check if wifiSignalReporting is enabled
 bool Device::wifiSignalReporting() {
     if (rssiReporting) {
         return true;
@@ -164,22 +165,26 @@ bool Device::wifiSignalReporting() {
     }
 }
 
+// Used to set wifiSignalReporting on/off
 bool Device::wifiSignalReporting(bool state) {
     rssiReporting = state;
     return true;
 }
 
+// Used to set wifiSignalReporting interval
 bool Device::wifiSignalReporting(int time) {
     rssiReportInterval = time;
     return true;
 }
 
+// Used to set wifiSignalReporting on/off and interval in one go
 bool Device::wifiSignalReporting(bool state, int time) {
     rssiReportInterval = time;
     rssiReporting = state;
     return true;
 }
 
+// Used to check if connectionLed is enabled or disabled
 bool Device::connectionLed() {
     if (ledEnabled) {
         return true;
@@ -188,22 +193,26 @@ bool Device::connectionLed() {
     }
 }
 
+// Used to set connectionLed on/off
 bool Device::connectionLed(bool state) {
     ledEnabled = state;
     return true;
 }
 
+// Used to set a custom pin for connectionLed
 bool Device::connectionLed(int ledPin) {
     connectionLedPin = ledPin;
     return true;
 }
 
+// Used to set connectionLed on/off and custom pin in one go
 bool Device::connectionLed(bool state, int ledPin) {
     connectionLedPin = ledPin;
     ledEnabled = state;
     return true;
 }
 
+// Used to enable debug output
 void Device::debugPort(Stream &debugSerial) {
     this->debugSerial = &debugSerial;
     delay(5000);
@@ -212,6 +221,7 @@ void Device::debugPort(Stream &debugSerial) {
     debug("Debug Level: Normal");
 }
 
+// Used to enable verbose debug output
 void Device::debugPort(Stream &debugSerial, bool verbose) {
     debugVerboseEnabled = verbose;
     this->debugSerial = &debugSerial;
@@ -230,6 +240,28 @@ void Device::generateRandomID() {
     sprintf(mqttId, "arduino-%2X%2X%2X%2X", mac[3], mac[2], mac[1], mac[0]);
     debugVerbose("Unique MQTT ID of Device:", ' ');
     debugVerbose(mqttId);
+}
+
+// Shows Device ID and Device Token via Serial in a hidden way (for visual verification)
+void Device::showMaskedCredentials() {
+    if (debugVerboseEnabled) {
+        String hiddenDeviceId = deviceCreds->getDeviceId();
+        String hiddenDeviceToken = deviceCreds->getDeviceToken();
+        String lastFourDeviceId = hiddenDeviceId.substring(20);
+        String lastFourDeviceToken = hiddenDeviceToken.substring(41);
+        hiddenDeviceId = hiddenDeviceId.substring(0, 4);
+        hiddenDeviceToken = hiddenDeviceToken.substring(0, 10);
+        hiddenDeviceId += "****************";
+        hiddenDeviceId += lastFourDeviceId;
+        hiddenDeviceToken += "*******************************";
+        hiddenDeviceToken += lastFourDeviceToken;
+        debugVerbose("API Endpoint:", ' ');
+        debugVerbose(deviceCreds->getHostname());
+        debugVerbose("Device ID:", ' ');
+        debugVerbose(hiddenDeviceId);
+        debugVerbose("Device Token:", ' ');
+        debugVerbose(hiddenDeviceToken);
+    }
 }
 
 // Initialization of everything. Run in setup(), only after defining everything else.
@@ -263,22 +295,7 @@ void Device::init() {
     generateRandomID();
 
     // Print out the Device ID and Device Token in a hidden way (for visual verification)
-    String hiddenDeviceId = deviceCreds->getDeviceId();
-    String hiddenDeviceToken = deviceCreds->getDeviceToken();
-    String lastFourDeviceId = hiddenDeviceId.substring(20);
-    String lastFourDeviceToken = hiddenDeviceToken.substring(41);
-    hiddenDeviceId = hiddenDeviceId.substring(0, 4);
-    hiddenDeviceToken = hiddenDeviceToken.substring(0, 10);
-    hiddenDeviceId += "****************";
-    hiddenDeviceId += lastFourDeviceId;
-    hiddenDeviceToken += "*******************************";
-    hiddenDeviceToken += lastFourDeviceToken;
-    debugVerbose("API Endpoint:", ' ');
-    debugVerbose(deviceCreds->getHostname());
-    debugVerbose("Device ID:", ' ');
-    debugVerbose(hiddenDeviceId);
-    debugVerbose("Device Token:", ' ');
-    debugVerbose(hiddenDeviceToken);
+    showMaskedCredentials();
 
     // Set MQTT Connection Parameters
     client.setServer(deviceCreds->getHostname(), 1883);
@@ -299,18 +316,21 @@ void Device::loop() {
     yield();
 }
 
+// Connect to both WiFi and ATT
 void Device::connect() {
     debug("Connecting to both WiFi and AllThingsTalk...");
     connectWiFi();
     connectAllThingsTalk();
 }
 
+// Disconnect both WiFi and ATT
 void Device::disconnect() {
     debug("Disconnecting from both AllThingsTalk and WiFi...");
     disconnectAllThingsTalk();
     disconnectWiFi();
 }
 
+// Main method to connect to WiFi
 void Device::connectWiFi() {
     if (WiFi.status() != WL_CONNECTED) {
         connectionLedFadeStart();
@@ -337,6 +357,7 @@ void Device::connectWiFi() {
     }
 }
 
+// Checks and recovers WiFi if lost
 void Device::maintainWiFi() {
     if (!disconnectedWiFi) {
         if (WiFi.status() != WL_CONNECTED) {
@@ -379,6 +400,7 @@ void Device::maintainWiFi() {
     }
 }
 
+// Main method for disconnecting from WiFi
 void Device::disconnectWiFi() {
     if (WiFi.status() == WL_CONNECTED) {
         disconnectAllThingsTalk();
@@ -391,12 +413,14 @@ void Device::disconnectWiFi() {
     }
 }
 
+// Used to set hostname that the device will present itself as on the network
 bool Device::setHostname(const char* hostname) {
     wifiHostname = hostname;
     wifiHostnameSet = true;
     return true;
 }
 
+// Connect to AllThingsTalk (and WiFi if it's disconnected)
 void Device::connectAllThingsTalk() {
     if (!client.connected()) {
         connectionLedFadeStart();
@@ -431,6 +455,7 @@ void Device::connectAllThingsTalk() {
     }
 }
 
+// Used to monitor AllThingsTalk connection and reconnect if dropped
 void Device::maintainAllThingsTalk() {
     if (!disconnectedAllThingsTalk) {
         if (!client.connected()) {
@@ -477,6 +502,7 @@ void Device::maintainAllThingsTalk() {
     }
 }
 
+// Used to disconnect from AllThingsTalk
 void Device::disconnectAllThingsTalk() {
     if (client.connected()) {
         client.disconnect();
@@ -545,7 +571,7 @@ bool Device::setActuationCallback(String asset, void (*actuationCallback)(double
 
 // Add float callback (3)
 bool Device::setActuationCallback(String asset, void (*actuationCallback)(float payload)) {
-    debugVerbose("Beware the maximum value of float in 32-bit systems is 2,147,483,647");
+    debugVerbose("Beware that the maximum value of float in 32-bit systems is 2,147,483,647");
     debugVerbose("Adding a Float Actuation Callback for Asset:", ' ');
     return tryAddActuationCallback(asset, (void*) actuationCallback, 3);
 }
