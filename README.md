@@ -166,7 +166,7 @@ void loop() {
 ```
 
 This will take care of connecting to WiFi and AllThingsTalk.  
-It will also show connection status using the [built-in LED](#connection-led) of your board and publish [WiFi Signal Strength](#wifi-signal-reporting) to your [AllThingsTalk Maker](https://maker.allthingstalk.com)
+It will also show connection status using the [built-in LED](#connection-led) of your board and publish [WiFi Signal Strength](#wifi-signal-reporting) (if enabled) to your [AllThingsTalk Maker](https://maker.allthingstalk.com).
 
 ## Connecting and Disconnecting
 
@@ -200,7 +200,7 @@ void loop() {
 ```
 
 ## Setting Hostname
-You can set the hostname for your device which is how it will be presented on the WiFi network by using `setHostname("YOUR_HOSTNAME")` before `device.init()`.
+You can set the hostname for your device (which is how it will be seen by other devices on the WiFi network) by using `setHostname("YOUR_HOSTNAME")` before `device.init()`.
 
 Example:
 ```cpp
@@ -369,7 +369,7 @@ device.send(payload);
 
 - `payload.reset()` clears the message queue, so you’re sure what you’re about to send is the only thing that’s going to be sent.  
 - `payload.set("asset_name", value)` adds a message to queue. 
-	You can add as many messages (payloads) as you like, before actually sending them to AllThingsTalk.
+	You can add as many messages (payloads) as you like before actually sending them to AllThingsTalk.
     -  `asset_name` is the name of asset on your AllThingsTalk Maker.  
        This argument is of type `char*`, in case you’re defining it as a variable.
     -  `value` is the data you want to send. It can be of any type.
@@ -517,7 +517,7 @@ void setup() {
 
 # Troubleshooting and Notes
 - Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
-- Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` sometimes. This is out of our control. It will most fail when reading an analog pin too often. In this case, it is okay to use `delay()` for about 300 or more milliseconds (see what works for you) in order to avoid this issue.
+- Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` sometimes. This is out of our control. It will most likely fail when reading an analog pin too often. In this case, it is okay to use `delay()` for about 300 or more milliseconds (see what works for you) in order to avoid this issue.
 - Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
 - Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in a future release.
 - **Important**: SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure** you're working with at least these versions:
