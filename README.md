@@ -268,7 +268,7 @@ The strength is presented as `Excellent`, `Good`, `Decent`, `Bad` and `Horrible`
 
 This feature is off by default, so if you wish to enable it, simply call `wifiSignalReporting(true)` in your `setup()` function (preferably before initialization).
 
-> Enabling this feature will also automatically create the required asset on your AllThingsTalk for you to see the data. 
+> Enabling this feature will also automatically [create the required asset](#creating-assets) on your AllThingsTalk for you to see the data. 
 > (Asset Name: `wifi-signal`, Title: `WiFi Signal Strength`, Asset Type: `sensor`, Data Type: `string`)
 
 Example:
