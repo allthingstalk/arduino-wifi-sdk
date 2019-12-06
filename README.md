@@ -1,25 +1,24 @@
-
-
-
-
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
 
-AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
-  
-  
-  
-  
-Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello World!` to your AllThingsTalk Maker:
+AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.  
+
+Here’s a **complete** Arduino sketch that connects to WiFi, AllThingsTalk, creates asset "`message`" and sends `Hello World!` to it:
 
 ```cpp
 #include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("WiFiName", "WiFiPassword");
 auto deviceCreds = DeviceConfig("DeviceID", "DeviceToken");
 auto device = Device(wifiCreds, deviceCreds);
-void setup() { device.init(); device.send("StringSensorAsset", "Hello World!"); }
-void loop() { device.loop(); }
+void setup() { 
+  device.createAsset("message", "Message", "sensor", "string"); 
+  device.init(); 
+  device.send("message", "Hello World!");
+}
+void loop() { 
+  device.loop(); 
+}
 ```
 
 That’s how easy it is!  
@@ -48,6 +47,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     * [Enable WiFi Signal Reporting](#enable-wifi-signal-reporting)
     * [Custom Reporting Interval](#custom-reporting-interval)
     * [WiFi Signal Strength On-Demand](#wifi-signal-strength-on-demand)
+* [Creating Assets](#creating-assets)
 * [Sending Data](#sending-data)
   * [JSON](#json)
   * [CBOR](#cbor)
@@ -96,7 +96,7 @@ The library takes care about initialization and maintaining WiFi and connection 
 
 ## Defining Credentials
 
-At the beginning of your sketch (before `setup()`), make sure to include this library and define your credentials:
+At the beginning of your sketch (before `setup()`), make sure to include this library and define your credentials as shown:
 
 ```cpp
 #include <AllThingsTalk_WiFi.h>
@@ -266,10 +266,12 @@ The strength is presented as `Excellent`, `Good`, `Decent`, `Bad` and `Horrible`
 
 ### Enable WiFi Signal Reporting
 
-> **IMPORTANT:** It's important that you first create a *Sensor* asset on your AllThingsTalk Maker device named **`wifi-signal`** of type **`String`** to which the device will publish the data.
+This feature is off by default, so if you wish to enable it, simply call `wifiSignalReporting(true)` in your `setup()` function (preferably before initialization).
 
-This feature is off by default, so if you wish to enable it, simply call `wifiSignalReporting(true)` in your `setup()` function (preferably before initialization):
+> Enabling this feature will also automatically create the required asset on your AllThingsTalk for you to see the data. 
+> (Asset Name: `wifi-signal`, Title: `WiFi Signal Strength`, Asset Type: `sensor`, Data Type: `string`)
 
+Example:
 ```cpp
 void setup() {
   device.wifiSignalReporting(true);
@@ -292,12 +294,12 @@ void setup() {
 }
 ```
 
-
 - You can call `wifiSignalReporting(seconds)` **anywhere** in your sketch if you wish to change its value during operation.
 
 ### WiFi Signal Strength On-Demand
 
 You can retrieve WiFi Signal Strength information on demand (as long as you’re connected to WiFi) using the `wifiSignal()` method.  The output is of type String.  
+
 Example:
 
 ```cpp
@@ -310,6 +312,44 @@ void loop() {
 }
 ```
 
+# Creating Assets
+
+This library provides functionality of creating (or updating) assets on your AllThingsTalk directly from your device upon boot.  
+
+> Your assets will be created upon device boot (when it connects to WiFi), and if they already exist, they'll be updated with properties defined in `createAsset()` method.  
+> You can create up to 64 assets on AllThingsTalk from your device.
+
+To utilize this feature, simply call `createAsset("assetName", "Asset Title", "assetType", "dataType")` method before calling `init()` in your `setup()` function.  
+Method accepts 4 arguments of type String, which are:
+
+- ***1st:*** Asset Name
+	- Unique name of the asset to be created on AllThingsTalk (e.g. "door-sensor")
+	- Type: String (without spaces)
+- ***2nd:*** Asset Title
+	- Title of the asset (e.g. "Home Door Sensor")
+	- Type: String
+- ***3rd:*** Asset Type
+	- Type of asset on AllThingsTalk
+	- Type: String (without spaces)
+	- Can be: **sensor**, **actuator**, **virtual**
+- ***4th:*** Data Type
+	- Type of data the device will provide to the asset
+	- Type: String (without spaces)
+	- Can be: **boolean**, **string**, **integer**, **number**, **object**, **array**, **location**
+
+Example:
+```cpp
+void setup() {
+  Serial.begin(115200);
+  device.debugPort(Serial);
+  device.createAsset("led", "LED Light", "actuator", "boolean");
+  device.createAsset("servo", "Servo Motor", "actuator", "integer");
+  device.createAsset("button", "Push Button", "sensor", "boolean");
+  device.createAsset("temp", "Temperature", "sensor", "number");
+  device.createAsset("humidity", "Humidity", "sensor", "number");
+  device.init();
+}
+```
 
 # Sending Data
 
@@ -462,7 +502,7 @@ In this case, if your device receives a string value `Hello there!` on asset `yo
 
 # Debug
 
-The library outputs useful information such as your WiFi details, AllThingsTalk connection details, connection status details and errors, messages going in/out, raw messages and much, much more.
+The library outputs useful information such as your WiFi details, AllThingsTalk connection details, connection status details and errors, asset creation results, messages going in/out, raw messages and much, much more.
 
 > When choosing a baud rate, if your board supports it, you should go for 115200 or higher, because higher speed baud rates mean less time wasted (by the CPU) outputting messages, therefore not halting your code.
 
@@ -488,6 +528,8 @@ That’s it! You should now see debug information from the library along with yo
 > Enabling Verbose Debug Output can help you significantly when troubleshooting your code.
  
 If you wish to see more information, you can use Verbose Debug Output which, in addition to Normal Debug Output, shows:  
+- Asset Creation HTTP Responses
+- HTTP Connection Status (for Asset Creation)
 - Unique Generated MQTT ID
 - API Endpoint
 - Device ID (masked)
@@ -504,7 +546,7 @@ If you wish to see more information, you can use Verbose Debug Output which, in 
 
 Enable Verbose Debug Output by adding argument `true` to the existing `debugPort(Serial)` method.
 
-**Example:**
+Example:
 
 ```cpp
 void setup() {
