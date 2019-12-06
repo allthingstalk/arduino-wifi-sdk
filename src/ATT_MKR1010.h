@@ -287,8 +287,8 @@ void Device::init() {
         debug("WiFi Signal Reporting: Enabled");
         debugVerbose("WiFi Signal Strength will be published every", ' ');
         debugVerbose(rssiReportInterval, ' ');
-        debugVerbose("seconds");
-        debugVerbose("To read WiFi Strength, create a Sensor asset 'wifi-signal' of type 'String' on your AllThingsTalk Maker");
+        debugVerbose("seconds to 'wifi-signal' asset (will be created automatically)");
+        createAsset("wifi-signal", "WiFi Signal Strength", "sensor", "string");
     }
 
     // Generate MQTT ID
@@ -304,7 +304,9 @@ void Device::init() {
     }
     
     // Connect to WiFi and AllThingsTalk
-    connect();
+    connectWiFi();
+    createAssets();
+    connectAllThingsTalk();
 }
 
 // Needs to be run in program loop in order to keep connections alive
@@ -420,6 +422,145 @@ bool Device::setHostname(const char* hostname) {
     return true;
 }
 
+// Used to connect to HTTP (for asset creation)
+bool Device::connectHttp() {
+    if (!(wifiClient.connect(deviceCreds->getHostname(), 80))) {
+        debug("Your Asset(s) can't be created on AllThingsTalk because the HTTP Connection failed.");
+        return false;
+    } else {
+        return true;
+    }
+}
+
+// Used to disconnect HTTP (for asset creation)
+void Device::disconnectHttp() {
+    wifiClient.flush();
+    wifiClient.stop();
+    debugVerbose("HTTP Connection (for Asset creation) to AllThingsTalk Closed");
+}
+
+// Used by the user to create a new asset on AllThingsTalk
+bool Device::createAsset(String name, String title, String assetType, String dataType) {
+    if (assetType == "sensor" || assetType == "actuator" || assetType == "virtual") {
+    } else {
+        String output = "Asset '" + name + "' (" + title + ") will not be created on AllThingTalk because it has an invalid asset type '" + assetType + "'.";
+        debug(output);
+        return false;
+    }
+    if (dataType == "boolean" || dataType == "string" || dataType == "integer" || dataType == "number" || dataType == "object" ||dataType == "array" ||  dataType == "location") {
+    } else {
+        String output = "Asset '" + name + "' (" + title + ") will not be created on AllThingTalk because it has an invalid data type '" + dataType + "'.";
+        debug(output);
+        return false;
+    }
+    
+    assetsToCreate = true;
+    assetProperties[assetsToCreateCount].name = name;
+    assetProperties[assetsToCreateCount].title = title;
+    assetProperties[assetsToCreateCount].assetType = assetType;
+    assetProperties[assetsToCreateCount].dataType = dataType;
+    ++assetsToCreateCount;
+}
+
+// Used by the SDK to actually create all the assets requested by user
+AssetProperty *Device::createAssets() {
+    if (assetsToCreate && connectHttp()) {
+        for (int i=0; i < assetsToCreateCount; i++) {
+            connectHttp();
+            wifiClient.println("PUT /device/" + String(deviceCreds->getDeviceId()) + "/asset/" + assetProperties[i].name  + " HTTP/1.1");
+            wifiClient.print(F("Host: "));
+            wifiClient.println(deviceCreds->getHostname());
+            wifiClient.println(F("Content-Type: application/json"));
+            wifiClient.print(F("Authorization: Bearer "));
+            wifiClient.println(deviceCreds->getDeviceToken());
+            wifiClient.print(F("Content-Length: ")); {
+                int length = assetProperties[i].title.length() + assetProperties[i].dataType.length();
+                
+                if(assetProperties[i].assetType.equals("sensor")) {
+                    length += 6;
+                } else if(assetProperties[i].assetType.equals("actuator")) {
+                    length += 8;
+                } else if(assetProperties[i].assetType.equals("virtual")) {
+                    length += 7;
+                }
+
+                if (assetProperties[i].dataType.length() == 0) {
+                    length += 39;
+                } else if (assetProperties[i].dataType[0] == '{') {
+                    length += 49;
+                } else {
+                    length += 62;
+                }
+                wifiClient.println(length);
+            }
+            wifiClient.println();
+            wifiClient.print(F("{\"title\":\""));
+            wifiClient.print(assetProperties[i].title);
+            wifiClient.print(F("\",\"is\":\""));
+            wifiClient.print(assetProperties[i].assetType);
+            if(assetProperties[i].dataType.length() == 0) {
+                wifiClient.print(F("\""));
+            } else if(assetProperties[i].dataType[0] == '{') {
+                wifiClient.print(F("\",\"profile\": "));
+                wifiClient.print(assetProperties[i].dataType);
+            } else {
+                wifiClient.print(F("\",\"profile\": { \"type\":\""));
+                wifiClient.print(assetProperties[i].dataType);
+                wifiClient.print(F("\" }"));
+            }
+            wifiClient.print(F("}"));
+            wifiClient.println();
+            wifiClient.println();
+            
+            unsigned long maxTime = millis() + 1000;
+            while (millis() < maxTime) {
+                if (wifiClient.available()) {
+                    break;
+                } else {
+                    delay(10);
+                }
+            }
+            
+            if (debugVerboseEnabled) {
+                if (wifiClient.available()) {
+                    String response;
+                    debugVerbose("---------------- HTTP Response from AllThingsTalk (Begin) ----------------");
+                    while (wifiClient.available()) {
+                        char c = wifiClient.read();
+                        response += c;
+                    }
+                    debugVerbose(response);
+                    debugVerbose("----------------- HTTP Response from AllThingsTalk (End) -----------------");
+                }
+            } else {
+                if (wifiClient.available()) {
+                    String output;
+                    while (wifiClient.available()) {
+                        if (!wifiClient.find("HTTP/1.1")) {
+                            break;
+                        }
+                        int responseCode = wifiClient.parseInt();
+                        switch (responseCode) {
+                            case 200:
+                                output = "Updated existing " + assetProperties[i].dataType + " " + assetProperties[i].assetType + " asset '" + assetProperties[i].name + "' (" + assetProperties[i].title + ") on AllThingsTalk";
+                                debug(output);
+                                break;
+                            case 201:
+                                output = "Created a " + assetProperties[i].dataType + " " + assetProperties[i].assetType + " asset '" + assetProperties[i].name + "' (" + assetProperties[i].title + ") on AllThingsTalk";
+                                debug(output);
+                                break;
+                            default:
+                                output = "Failed to create a " + assetProperties[i].dataType + " " + assetProperties[i].assetType + " asset '" + assetProperties[i].name + "' (" + assetProperties[i].title + ") on AllThingsTalk. HTTP Response Code: " + responseCode;
+                                debug(output);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        disconnectHttp();
+    }
+}
 // Connect to AllThingsTalk (and WiFi if it's disconnected)
 void Device::connectAllThingsTalk() {
     if (!client.connected()) {
