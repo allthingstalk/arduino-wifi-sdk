@@ -1,24 +1,19 @@
+
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
 
 AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.  
 
-Here’s a **complete** Arduino sketch that connects to WiFi, AllThingsTalk, creates asset "`message`" and sends `Hello World!` to it:
+Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello World!` to your AllThingsTalk Maker:
 
 ```cpp
 #include <AllThingsTalk_WiFi.h>
 auto wifiCreds = WifiCredentials("WiFiName", "WiFiPassword");
 auto deviceCreds = DeviceConfig("DeviceID", "DeviceToken");
 auto device = Device(wifiCreds, deviceCreds);
-void setup() { 
-  device.createAsset("message", "Message", "sensor", "string"); 
-  device.init(); 
-  device.send("message", "Hello World!");
-}
-void loop() { 
-  device.loop(); 
-}
+void setup() { device.init(); device.send("StringSensorAsset", "Hello World!"); }
+void loop() { device.loop(); }
 ```
 
 That’s how easy it is!  
@@ -363,7 +358,7 @@ JSON is a lightweight data-interchange format which is easy for humans to read a
 
 > This is the quickest and simplest way of sending data.
 
-In order to send a JSON message, just add the following line to your code:
+Use the following method to send a JSON message:
 
 ```cpp
 device.send("asset_name", value);
@@ -558,11 +553,8 @@ void setup() {
 
 
 # Troubleshooting and Notes
-- Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
-- Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` sometimes. This is out of our control. It will most likely fail when reading an analog pin too often. In this case, it is okay to use `delay()` for about 300 or more milliseconds (see what works for you) in order to avoid this issue.
-- Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
-- Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in a future release.
-- **Important**: SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure** you're working with at least these versions:
+
+- This SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure** you're working with at least these versions:
 
     | Name | Version | Used for | Type | Description |
     |--|--|--|--|--|
@@ -574,3 +566,9 @@ void setup() {
     | [ArduinoJson](https://arduinojson.org/) | 6.13 | All | Arduino Library | Parsing and building JSON payloads to send/receive from AllThingsTalk. |
     | [PubSubClient](https://pubsubclient.knolleary.net/) (INCLUDED) | 2.7.0 | All | Arduino Library | Used by this SDK to connect to AllThingsTalk. Already included in this SDK. |
     | [Scheduler](https://www.arduino.cc/en/Reference/Scheduler) | 0.4.4 | MKR1010 | Arduino Library | Enables 'multithreading' on *Arduino MKR1010*. |
+- Make sure to [enable verbose debug output](#enable-verbose-debug-output) as it could tell you a lot and thus help you resolve your problem.
+- If you try to send data to a non-existent asset on AllThingsTalk, you might get disconnected. This is by design. You can make sure the asset exists by using the [create assets](#creating-assets) feature of this SDK.
+- Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. The SDK will recover the connection automatically, but if this happens too often, try to use `millis()` to create delays when possible.
+- Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` sometimes. This is out of our control. It will most likely fail when reading an analog pin too often. In this case, it is okay to use `delay()` for about 50 or more milliseconds (see what works for you) in order to avoid this issue.
+- Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in a future release.
+- If you find any bugs in this SDK, feel free to [create an issue](https://github.com/allthingstalk/arduino-wifi-sdk/issues).
