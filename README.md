@@ -1,16 +1,9 @@
-
-
-
-
 # AllThingsTalk Arduino WiFi SDK
 
 <img align="right" width="250" height="148" src="extras/wifi-logo.png">
 
-AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.
-  
-  
-  
-  
+AllThingsTalk Arduino Library for WiFi Devices - makes connecting your devices with your [AllThingsTalk Maker](https://maker.allthingstalk.com/) a breeze.  
+
 Here’s a **complete** Arduino sketch that connects to WiFi and sends `Hello World!` to your AllThingsTalk Maker:
 
 ```cpp
@@ -39,6 +32,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     * [Custom AllThingsTalk Space](#custom-allthingstalk-space)
   * [Maintaining Connection](#maintaining-connection)
   * [Connecting and Disconnecting](#connecting-and-disconnecting)
+  * [Setting Hostname](#setting-hostname)
   * [Connection LED](#connection-led)
     * [Connection LED Signals](#connection-led-signals)
     * [Define Your Own Connection LED Pin](#define-your-own-connection-led-pin)
@@ -47,6 +41,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     * [Enable WiFi Signal Reporting](#enable-wifi-signal-reporting)
     * [Custom Reporting Interval](#custom-reporting-interval)
     * [WiFi Signal Strength On-Demand](#wifi-signal-strength-on-demand)
+* [Creating Assets](#creating-assets)
 * [Sending Data](#sending-data)
   * [JSON](#json)
   * [CBOR](#cbor)
@@ -99,7 +94,7 @@ The library takes care about initialization and maintaining WiFi and connection 
 
 ## Defining Credentials
 
-At the beginning of your sketch (before `setup()`), make sure to include this library and define your credentials:
+At the beginning of your sketch (before `setup()`), make sure to include this library and define your credentials as shown:
 
 ```cpp
 #include <AllThingsTalk_WiFi.h>
@@ -169,7 +164,7 @@ void loop() {
 ```
 
 This will take care of connecting to WiFi and AllThingsTalk.  
-It will also show connection status using the [built-in LED](#connection-led) of your board and publish [WiFi Signal Strength](#wifi-signal-reporting) to your [AllThingsTalk Maker](https://maker.allthingstalk.com)
+It will also show connection status using the [built-in LED](#connection-led) of your board and publish [WiFi Signal Strength](#wifi-signal-reporting) (if enabled) to your [AllThingsTalk Maker](https://maker.allthingstalk.com).
 
 ## Connecting and Disconnecting
 
@@ -199,6 +194,17 @@ void loop() {
   device.disconnect(); // Disconnect from both WiFi and AllThingsTalk
   delay(5000);         // Wait 5 seconds
   device.connect();    // Connects to both WiFi and AllThingsTalk
+}
+```
+
+## Setting Hostname
+You can set the hostname for your device (which is how it will be seen by other devices on the WiFi network) by using `setHostname("YOUR_HOSTNAME")` before `device.init()`.
+
+Example:
+```cpp
+void setup() {
+  device.setHostname("MyDevice");
+  device.init();
 }
 ```
 
@@ -258,10 +264,12 @@ The strength is presented as `Excellent`, `Good`, `Decent`, `Bad` and `Horrible`
 
 ### Enable WiFi Signal Reporting
 
-> **IMPORTANT:** It's important that you first create a *Sensor* asset on your AllThingsTalk Maker device named **`wifi-signal`** of type **`String`** to which the device will publish the data.
+This feature is off by default, so if you wish to enable it, simply call `wifiSignalReporting(true)` in your `setup()` function (preferably before initialization).
 
-This feature is off by default, so if you wish to enable it, simply call `wifiSignalReporting(true)` in your `setup()` function (preferably before initialization):
+> Enabling this feature will also automatically [create the required asset](#creating-assets) on your AllThingsTalk for you to see the data. 
+> (Asset Name: `wifi-signal`, Title: `WiFi Signal Strength`, Asset Type: `sensor`, Data Type: `string`)
 
+Example:
 ```cpp
 void setup() {
   device.wifiSignalReporting(true);
@@ -284,12 +292,12 @@ void setup() {
 }
 ```
 
-
 - You can call `wifiSignalReporting(seconds)` **anywhere** in your sketch if you wish to change its value during operation.
 
 ### WiFi Signal Strength On-Demand
 
 You can retrieve WiFi Signal Strength information on demand (as long as you’re connected to WiFi) using the `wifiSignal()` method.  The output is of type String.  
+
 Example:
 
 ```cpp
@@ -302,6 +310,44 @@ void loop() {
 }
 ```
 
+# Creating Assets
+
+This library provides functionality of creating (or updating) assets on your AllThingsTalk directly from your device upon boot.  
+
+> Your assets will be created upon device boot (when it connects to WiFi), and if they already exist, they'll be updated with properties defined in `createAsset()` method.  
+> You can create up to 64 assets on AllThingsTalk from your device.
+
+To utilize this feature, simply call `createAsset("assetName", "Asset Title", "assetType", "dataType")` method before calling `init()` in your `setup()` function.  
+Method accepts 4 arguments of type String, which are:
+
+- ***1st:*** Asset Name
+	- Unique name of the asset to be created on AllThingsTalk (e.g. "door-sensor")
+	- Type: String (without spaces)
+- ***2nd:*** Asset Title
+	- Title of the asset (e.g. "Home Door Sensor")
+	- Type: String
+- ***3rd:*** Asset Type
+	- Type of asset on AllThingsTalk
+	- Type: String (without spaces)
+	- Can be: **sensor**, **actuator**, **virtual**
+- ***4th:*** Data Type
+	- Type of data the device will provide to the asset
+	- Type: String (without spaces)
+	- Can be: **boolean**, **string**, **integer**, **number**, **object**, **array**, **location**
+
+Example:
+```cpp
+void setup() {
+  Serial.begin(115200);
+  device.debugPort(Serial);
+  device.createAsset("led", "LED Light", "actuator", "boolean");
+  device.createAsset("servo", "Servo Motor", "actuator", "integer");
+  device.createAsset("button", "Push Button", "sensor", "boolean");
+  device.createAsset("temp", "Temperature", "sensor", "number");
+  device.createAsset("humidity", "Humidity", "sensor", "number");
+  device.init();
+}
+```
 
 # Sending Data
 
@@ -315,7 +361,7 @@ JSON is a lightweight data-interchange format which is easy for humans to read a
 
 > This is the quickest and simplest way of sending data.
 
-In order to send a JSON message, just add the following line to your code:
+Use the following method to send a JSON message:
 
 ```cpp
 device.send("asset_name", value);
@@ -361,7 +407,7 @@ device.send(payload);
 
 - `payload.reset()` clears the message queue, so you’re sure what you’re about to send is the only thing that’s going to be sent.  
 - `payload.set("asset_name", value)` adds a message to queue. 
-	You can add as many messages (payloads) as you like, before actually sending them to AllThingsTalk.
+	You can add as many messages (payloads) as you like before actually sending them to AllThingsTalk.
     -  `asset_name` is the name of asset on your AllThingsTalk Maker.  
        This argument is of type `char*`, in case you’re defining it as a variable.
     -  `value` is the data you want to send. It can be of any type.
@@ -454,7 +500,7 @@ In this case, if your device receives a string value `Hello there!` on asset `yo
 
 # Debug
 
-The library outputs useful information such as your WiFi details, AllThingsTalk connection details, connection status details and errors, messages going in/out, raw messages and much, much more.
+The library outputs useful information such as your WiFi details, AllThingsTalk connection details, connection status details and errors, asset creation results, messages going in/out, raw messages and much, much more.
 
 > When choosing a baud rate, if your board supports it, you should go for 115200 or higher, because higher speed baud rates mean less time wasted (by the CPU) outputting messages, therefore not halting your code.
 
@@ -480,6 +526,8 @@ That’s it! You should now see debug information from the library along with yo
 > Enabling Verbose Debug Output can help you significantly when troubleshooting your code.
  
 If you wish to see more information, you can use Verbose Debug Output which, in addition to Normal Debug Output, shows:  
+- Asset Creation HTTP Responses
+- HTTP Connection Status (for Asset Creation)
 - Unique Generated MQTT ID
 - API Endpoint
 - Device ID (masked)
@@ -496,7 +544,7 @@ If you wish to see more information, you can use Verbose Debug Output which, in 
 
 Enable Verbose Debug Output by adding argument `true` to the existing `debugPort(Serial)` method.
 
-**Example:**
+Example:
 
 ```cpp
 void setup() {
@@ -508,19 +556,22 @@ void setup() {
 
 
 # Troubleshooting and Notes
-- Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. If this happens, try to use `millis()` to create delays when possible.
-- Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` sometimes. This is out of our control. It will most fail when reading an analog pin too often. In this case, it is okay to use `delay()` for about 300 or more milliseconds (see what works for you) in order to avoid this issue.
-- Enabling [WiFi Signal Reporting](#wifi-signal-reporting) on the device without creating the `wifi-signal` asset on AllThingsTalk Maker results in a connect drop. This happens because a message is being published to a non-existent asset. Please create the asset first.
-- Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in a future release.
-- **Important**: SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure** you're working with at least these versions:
+
+- This SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure** you're working with at least these versions:
 
     | Name | Version | Used for | Type | Description |
     |--|--|--|--|--|
     | [Arduino IDE](https://www.arduino.cc/en/Main/Software) | 1.8.10 | All | Desktop Software | Main development environment. |
     | [esp8266](https://github.com/esp8266/Arduino#installing-with-boards-manager) | 2.6.2 | ESP8266 |  Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with *ESP8266* and *ESP8266*-based devices. |
     | [Arduino SAMD](https://www.arduino.cc/en/Guide/MKRWiFi1010#toc2) | 1.8.3 | MKR1010 |Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with devices based on SAMD architecture (*MKR1010*). |
-     | [NINA Firmware](https://www.arduino.cc/en/Tutorial/WiFiNINA-FirmwareUpdater) | 1.2.4 | MKR1010 | Arduino MKR1010 WiFi Firmware | Firmware that drives the WiFi module present on the *Arduino MKR1010*. |
+    | [NINA Firmware](https://www.arduino.cc/en/Tutorial/WiFiNINA-FirmwareUpdater) | 1.2.4 | MKR1010 | Firmware | Firmware that drives the WiFi module present on the *Arduino MKR1010*. |
     | [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) | 1.4.0 | MKR1010 | Arduino Library | Enables *Arduino MKR1010* to connect to WiFi.  |
+    | [Scheduler](https://www.arduino.cc/en/Reference/Scheduler) | 0.4.4 | MKR1010 | Arduino Library | Enables 'multithreading' on *Arduino MKR1010*. |
     | [ArduinoJson](https://arduinojson.org/) | 6.13 | All | Arduino Library | Parsing and building JSON payloads to send/receive from AllThingsTalk. |
     | [PubSubClient](https://pubsubclient.knolleary.net/) (INCLUDED) | 2.7.0 | All | Arduino Library | Used by this SDK to connect to AllThingsTalk. Already included in this SDK. |
-    | [Scheduler](https://www.arduino.cc/en/Reference/Scheduler) | 0.4.4 | MKR1010 | Arduino Library | Enables 'multithreading' on *Arduino MKR1010*. |
+- Make sure to [enable verbose debug output](#enable-verbose-debug-output) as it could tell you a lot and thus help you resolve your problem.
+- If you try to send data to a non-existent asset on AllThingsTalk, you might get disconnected. This is by design. You can make sure the asset exists by using the [create assets](#creating-assets) feature of this SDK.
+- Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. The SDK will recover the connection automatically, but if this happens too often, try to use `millis()` to create delays when possible.
+- Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` sometimes. This is out of our control. It will most likely fail when reading an analog pin too often. In this case, it is okay to use `delay()` for about 50 or more milliseconds (see what works for you) in order to avoid this issue.
+- Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in a future release.
+- If you find any bugs in this SDK, feel free to [create an issue](https://github.com/allthingstalk/arduino-wifi-sdk/issues).

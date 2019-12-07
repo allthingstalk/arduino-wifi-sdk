@@ -5,30 +5,32 @@
  * Waits for you to send a message from your AllThingsTalk Maker from an Actuator asset
  * and, once received, relays that message (using CBOR) back to a specified Sensor asset 
  * on your AllThingsTalk Maker.
+ * This example will automatically create an actuator asset "relay-msg-actuator-example" on your AllThingsTalk for you to send a message from
+ * This example will also automatically create a sensor asset "relay-msg-sensor-example" on your AllThingsTalk for you to receive a message on
  *
  * Notes:
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
- * - Create an Actuator asset of type String on your AllThingsTalk Maker (You'll send messages from here)
- * - Create a Sensor asset of type String on your AllThingsTalk Maker (You'll receive your messages back from here)
  *
  * These are all the things in this example that you need to change to make it work:
- *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Actuator-Asset, Sensor-Asset
+ *   WiFiSSID, WiFiPassword, DeviceID, DeviceToken
  */
 
 #include <AllThingsTalk_WiFi.h>
 
-auto wifiCreds   = WifiCredentials("WiFi-SSID", "WiFi-Password"); // Your WiFi Network Name and Password
-auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");     // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
+auto wifiCreds   = WifiCredentials("WiFiSSID", "WiFiPassword");   // Your WiFi Network Name and Password
+auto deviceCreds = DeviceConfig("DeviceID", "DeviceToken");       // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
 auto device      = Device(wifiCreds, deviceCreds);                // Create "device" object
-char* actuator   = "Actuator-Asset";                              // Actuator asset on AllThingsTalk named "actuator"
-char* sensor     = "Sensor-Asset";                                // Sensor asset on AllThingsTalk named "sensor"
+char* actuator   = "relay-msg-actuator-example";                  // Name of asset on AllThingsTalk that you'll use to send a message (automatically created below)
+char* sensor     = "relay-msg-sensor-example";                    // Name of asset on AllThingsTalk that you'll receive a message on (automatically created below)
 CborPayload payload;                                              // Create CBOR payload object, so we can use CBOR to send data
 
 void setup() {
   Serial.begin(115200);                   // Baud rate: 115200, but you can define any baud rate you want
   device.debugPort(Serial);               // Set AllThingsTalk library to output its debug to "Serial"
-  device.setActuationCallback(actuator, actuation);  // Actuator asset defined above will trigger function "actuation" 
-  device.init();                          // Initialize AllThingsTalk
+  device.setActuationCallback(actuator, actuation);  // Actuator asset defined above will trigger function "actuation"
+  device.createAsset("relay-msg-actuator-example", "Relay Message Actuator (SDK Example)", "actuator", "string"); // Create asset on AllThingsTalk to send message
+  device.createAsset("relay-msg-sensor-example", "Relay Message Sensor (SDK Example)", "sensor", "string"); // Create asset on AllThingsTalk to receive message
+  device.init();                          // Initialize WiFi and AllThingsTalk
 }
 
 void loop() {

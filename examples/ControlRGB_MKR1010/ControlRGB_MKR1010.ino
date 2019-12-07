@@ -22,17 +22,17 @@
  * - Click on the newly created color picker, choose a color and see your MKR1010 RGB LED light up in that color
  *
  * These are all the things in this example that you need to change to make it work: 
- *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Actuator-Asset
+ *   WiFiSSID, WiFiPassword, DeviceID, DeviceToken, ActuatorAsset
  */
 
 #include <AllThingsTalk_WiFi.h> // Where the magic happens
 #include <WiFiNINA.h>           // This is required only for the purpose of loading the library below.
 #include <utility/wifi_drv.h>   // Exposes MKR1010's underlying functions to control the RGB LED
 
-auto wifiCreds   = WifiCredentials("WiFi-SSID", "WiFi-Password"); // Your WiFi Network Name and Password
-auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");     // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
+auto wifiCreds   = WifiCredentials("WiFiSSID", "WiFiPassword");   // Your WiFi Network Name and Password
+auto deviceCreds = DeviceConfig("DeviceID", "DeviceToken");       // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
 auto device      = Device(wifiCreds, deviceCreds);                // Create "device" object
-char* actuator   = "Actuator-Asset";                              // Change this to fit the name of your asset
+char* actuator   = "ActuatorAsset";                               // Change this to fit the name of your asset
 int r,g,b;                                                        // RGB values will be held in these variables
 
 void setup() {
@@ -42,7 +42,7 @@ void setup() {
   WiFiDrv::pinMode(27, OUTPUT);         // Initialize the Blue LED pin on the MKR1010 board
   device.debugPort(Serial);             // Set AllThingsTalk library to output its debug to "Serial"
   device.setActuationCallback(actuator, rgb); // Add an actuation callback for asset defined above and run function "rgb" once command is received
-  device.init();                        // Initialize AllThingsTalk
+  device.init();                        // Initialize WiFi and AllThingsTalk
 }
 
 void rgb(String value) {                // Function that will be called when you pick a color on AllThingsTalk

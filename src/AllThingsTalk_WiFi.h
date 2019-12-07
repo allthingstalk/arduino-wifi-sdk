@@ -39,6 +39,14 @@ public:
     //void execute(JsonVariant variant);
 };
 
+class AssetProperty {
+public:
+    String name;
+    String title;
+    String assetType;
+    String dataType;
+};
+
 class Device {
 public:
     Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds);
@@ -52,6 +60,9 @@ public:
     // Debug
     void debugPort(Stream &debugSerial);
     void debugPort(Stream &debugSerial, bool verbose);
+    
+    // Create asset
+    bool createAsset(String name, String title, String assetType, String dataType);
     
     // Sending Data
     bool send(CborPayload &payload);
@@ -107,11 +118,21 @@ private:
     void connectionLedFadeStop();
     static void connectionLedFade();
     
+    // Asset creation
+    int assetsToCreateCount = 0;
+    bool assetsToCreate = false;
+    static const int maximumAssetsToCreate = 64;
+    AssetProperty assetProperties[maximumAssetsToCreate];
+    AssetProperty *createAssets();
+    bool connectHttp();
+    void disconnectHttp();
+    
     // Connecting
     void generateRandomID();
     void maintainWiFi();
     void maintainAllThingsTalk();
     void reportWiFiSignal();
+    void showMaskedCredentials();
 
     // Actuations / Callbacks
     #ifdef ESP8266
@@ -129,7 +150,6 @@ private:
     // Connection Signal LED Parameters
     #define UP 1
     #define DOWN 0
-    
     #ifdef ESP8266
     bool ledEnabled                  = true;    // Default state for Connection LED
     int connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
