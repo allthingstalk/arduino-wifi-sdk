@@ -236,7 +236,7 @@ void setup() {
 ```
 
 - This feature can also be defined as `connectionLed(true, your_led_pin)`
-- You can change the Connection LED pin during operation by called the method above.
+- You can change the Connection LED pin during operation by calling the method above.
 
 
 ### Disable Connection LED
