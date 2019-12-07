@@ -11,7 +11,7 @@
  * - Create a Sensor asset of type String on your AllThingsTalk Maker
  *
  * These are all the things in this example that you need to change to make it work: 
- *   Sensor-Asset
+ *   SensorAsset
  *   Edit the "keys.h" file (second tab of your Arduino IDE) and enter your credentials there.
  */
  
@@ -23,8 +23,8 @@ auto deviceCreds = DeviceConfig(DEVICE_ID, DEVICE_TOKEN);     // Edit these in t
 auto device      = Device(wifiCreds, deviceCreds);            // Create "device" object
 
 void setup() {
-  device.init();                                 // Initialize AllThingsTalk
-  device.send("Sensor-Asset", "Hello World!");   // Send "Hello World!" to asset named "Sensor-Asset" (change this to fit your asset name)
+  device.init();                                 // Initialize WiFi and AllThingsTalk
+  device.send("SensorAsset", "Hello World!");   // Send "Hello World!" to asset named "Sensor-Asset" (change this to fit your asset name)
 }
 
 void loop() {

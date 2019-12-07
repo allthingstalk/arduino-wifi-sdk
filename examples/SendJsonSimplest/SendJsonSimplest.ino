@@ -10,18 +10,18 @@
  * - Create a Sensor asset of type String on your AllThingsTalk Maker
  *
  * These are all the things in this example that you need to change to make it work:
- *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Sensor-Asset
+ *   WiFiSSID, WiFiPassword, DeviceID, DeviceToken, SensorAsset
  */
 
 #include <AllThingsTalk_WiFi.h>
 
-auto wifiCreds   = WifiCredentials("WiFi-SSID", "WiFi-Password"); // Your WiFi Network Name and Password
-auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");     // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
+auto wifiCreds   = WifiCredentials("WiFiSSID", "WiFiPassword");   // Your WiFi Network Name and Password
+auto deviceCreds = DeviceConfig("DeviceID", "DeviceToken");       // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
 auto device      = Device(wifiCreds, deviceCreds);                // Create "device" object
 
 void setup() {
-  device.init();                                 // Initialize AllThingsTalk
-  device.send("Sensor-Asset", "Hello World!");   // Send "Hello World!" to asset named "Sensor-Asset" (change this to fit your asset name)
+  device.init();                                // Initialize WiFi and AllThingsTalk
+  device.send("SensorAsset", "Hello World!");   // Send "Hello World!" to asset named "SensorAsset" (change this to fit your asset name)
 }
 
 void loop() {
