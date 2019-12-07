@@ -465,6 +465,7 @@ bool Device::createAsset(String name, String title, String assetType, String dat
 // Used by the SDK to actually create all the assets requested by user
 AssetProperty *Device::createAssets() {
     if (assetsToCreate && connectHttp()) {
+        connectionLedFadeStart();
         for (int i=0; i < assetsToCreateCount; i++) {
             connectHttp();
             wifiClient.println("PUT /device/" + String(deviceCreds->getDeviceId()) + "/asset/" + assetProperties[i].name  + " HTTP/1.1");
@@ -535,7 +536,7 @@ AssetProperty *Device::createAssets() {
             } else {
                 if (wifiClient.available()) {
                     String output;
-                    while (wifiClient.available()) {
+                    while (wifiClient.available()) { // This is of dubious value.
                         if (!wifiClient.find("HTTP/1.1")) {
                             break;
                         }
@@ -554,6 +555,7 @@ AssetProperty *Device::createAssets() {
                                 debug(output);
                                 break;
                         }
+                        break;
                     }
                 }
             }
@@ -561,6 +563,7 @@ AssetProperty *Device::createAssets() {
         disconnectHttp();
     }
 }
+
 // Connect to AllThingsTalk (and WiFi if it's disconnected)
 void Device::connectAllThingsTalk() {
     if (!client.connected()) {
