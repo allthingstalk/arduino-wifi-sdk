@@ -3,25 +3,26 @@
  *
  * About this example: 
  * Control the built-in LED of your board using your AllThingsTalk Maker.
+ * This example will automatically create an asset "builtin-led-example" on your AllThingsTalk for you to control the LED
  * Requires no external components.
  * 
  * Notes:
  * - Create a device on your https://maker.allthingstalk.com (if you don't already have it)
- * - Create an Actuator asset of type Boolean on your AllThingsTalk Maker. We'll use this asset to control the LED.
- * - The Built-In LED of the ESP8266 (and possibly other boards) is inverted by design. 
+ * - The Built-In LED of the ESP8266 is inverted by design. 
  *   Because of this, we'll need to use "HIGH" when we want to turn it off and "LOW" when we want it on.
+ *   If you're using some other board and it's inverted, "LOW" to "HIGH" and vice versa.
  *
  * These are all the things in this example that you need to change to make it work: 
- *   WiFi-SSID, WiFi-Password, Device-ID, Device-Token, Actuator-Asset, LED_BUILTIN (Change only if this doesn't work for you)
+ *   WiFiSSID, WiFiPassword, DeviceID, DeviceToken, LED_BUILTIN (Change only if this doesn't work for you)
  */
 
 #include <AllThingsTalk_WiFi.h>
 
-auto wifiCreds   = WifiCredentials("WiFi-SSID", "WiFi-Password"); // Your WiFi Network Name and Password
-auto deviceCreds = DeviceConfig("Device-ID", "Device-Token");     // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
+auto wifiCreds   = WifiCredentials("WiFiSSID", "WiFiPassword");   // Your WiFi Network Name and Password
+auto deviceCreds = DeviceConfig("DeviceID", "DeviceToken");       // Go to AllThingsTalk Maker > Devices > Your Device > Settings > Authentication to get your Device ID and Token
 auto device      = Device(wifiCreds, deviceCreds);                // Create "device" object
 int  ledPin      = LED_BUILTIN;                                   // Built-in LED of your board. "LED_BUILTIN" is automatically recognized as the built-in LED pin.
-char* asset      = "Actuator-Asset";                              // Name of your boolean actuator asset from AllThingsTalk Maker that you'll use to control the LED
+char* asset      = "builtin-led-example";                         // Name of asset on AllThingsTalk that you'll use to control the LED (automatically created below)
 
 void setup() {
   Serial.begin(115200);                 // Baud rate: 115200, but you can define any baud rate you want
@@ -30,6 +31,7 @@ void setup() {
   device.debugPort(Serial);             // Set AllThingsTalk library to output its debug to "Serial"
   device.connectionLed(false);          // Disable the Connection LED feature because we're going to control that exact LED
   device.setActuationCallback(asset, actuation);  // "asset" - Variable we defined above, "actuation" - Name of the function below that does the work
+  device.createAsset("builtin-led-example", "Built-In LED (SDK Example)", "sensor", "boolean"); // Create asset on your AllThingsTalk to control the LED
   device.init();                        // Initialize AllThingsTalk
 }
 
