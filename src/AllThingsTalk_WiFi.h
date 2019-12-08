@@ -73,7 +73,7 @@ public:
     void connect();
     void disconnect();
     void connectWiFi();
-    #ifdef ESP8266
+    #ifdef ESP8266 || ESP32
     bool setHostname(String hostname);
     #else
     bool setHostname(const char* hostname);
@@ -135,7 +135,7 @@ private:
     void showMaskedCredentials();
 
     // Actuations / Callbacks
-    #ifdef ESP8266
+    #ifdef ESP8266 || ESP32
     void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length);
     #else
     static Device* instance; // // Internal callback saving for non-ESP devices (e.g. MKR)
@@ -150,7 +150,7 @@ private:
     // Connection Signal LED Parameters
     #define UP 1
     #define DOWN 0
-    #ifdef ESP8266
+    #ifdef ESP8266 || ESP32
     bool ledEnabled                  = true;    // Default state for Connection LED
     int connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
     static const int minPWM          = 0;       // Minimum PWM
@@ -197,7 +197,7 @@ private:
     // Connection parameters
     bool disconnectedWiFi;                 // True when it's intentionally disconnected
     bool disconnectedAllThingsTalk;        // True when it's intentionally disconnected
-    #ifdef ESP8266
+    #ifdef ESP8266 || ESP32
     String wifiHostname;                   // WiFi Hostname itself
     #else
     const char* wifiHostname;              // Used for MKR

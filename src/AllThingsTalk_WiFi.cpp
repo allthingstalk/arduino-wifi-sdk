@@ -41,9 +41,14 @@
 #define SUPPORTS // Prevents error if no devices are supported by SDK
 #endif
 
+#ifdef ESP32
+#include "ATT_ESP32.h"
+#define SUPPORTS // Prevents error if no devices are supported by SDK
+#endif
+
 #ifndef SUPPORTS
 Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {
-    #error "Currently, ESP8266 (all ESP8266-based devices) and MKR1010 are supported. Open up an issue on GitHub if you'd like us to support your device."
+    #error "Currently, ESP8266 (all ESP8266-based devices), ESP32 (all ESP32-based devices) and MKR1010 are supported. Open up an issue on GitHub if you'd like us to support your device."
 }
 #undef SUPPORTS
 #endif
