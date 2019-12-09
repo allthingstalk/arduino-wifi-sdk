@@ -5,7 +5,7 @@
  *                             |___/
  *
  * Copyright 2019 AllThingsTalk
- * Author: Vanja
+ * Author: Vanja Stanic
  * https://allthingstalk.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +25,9 @@
 
 #include <Ticker.h>
 #include <ESP8266WiFi.h>
+#include <WiFiClientSecure.h>
 
-WiFiClient wifiClient;
+WiFiClientSecure wifiClient;
 PubSubClient client(wifiClient);
 Ticker fader;
 
@@ -187,7 +188,7 @@ void Device::generateRandomID() {
     debugVerbose(mqttId);
 }
 
-// Shows Device ID and Device Token via Serial in a hidden way (for visual verification)
+// Shows device credentials via Serial (Device ID and Device Token in a hidden way)
 void Device::showMaskedCredentials() {
     if (debugVerboseEnabled) {
         String hiddenDeviceId = deviceCreds->getDeviceId();
@@ -202,6 +203,9 @@ void Device::showMaskedCredentials() {
         hiddenDeviceToken += lastFourDeviceToken;
         debugVerbose("API Endpoint:", ' ');
         debugVerbose(deviceCreds->getHostname());
+        debugVerbose("Using TLS Certificate Fingerprint:", ' ');
+        debugVerbose(fingerprint);
+        debugVerbose("TLS Certificate expires on 3rd November 2020. Update the SDK (or certificate manually) after that date.");
         debugVerbose("Device ID:", ' ');
         debugVerbose(hiddenDeviceId);
         debugVerbose("Device Token:", ' ');
@@ -242,8 +246,11 @@ void Device::init() {
     // Print out the Device ID and Device Token in a hidden way (for visual verification)
     showMaskedCredentials();
 
+    // Set TLS fingerprint (defined in AllThingsTalk_WiFi.h)
+    wifiClient.setFingerprint(fingerprint);
+
     // Set MQTT Connection Parameters
-    client.setServer(deviceCreds->getHostname(), 1883);
+    client.setServer(deviceCreds->getHostname(), 8883);
     if (callbackEnabled == true) {
         client.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
     }
@@ -291,7 +298,7 @@ void Device::connectWiFi() {
         WiFi.begin(wifiCreds->getSsid(), wifiCreds->getPassword());
         while (WiFi.status() != WL_CONNECTED) {
             debug("", '.');
-            delay(10000);
+            delay(1500);
         }
         debug("");
         debug("Connected to WiFi!");
@@ -368,20 +375,27 @@ bool Device::setHostname(String hostname) {
 }
 
 // Used to connect to HTTP (for asset creation)
-bool Device::connectHttp() {
-    if (!(wifiClient.connect(deviceCreds->getHostname(), 80))) {
-        debug("Your Asset(s) can't be created on AllThingsTalk because the HTTP Connection failed.");
+bool Device::connectHttps() {
+    debugVerbose("mile: connect");
+    if (!(wifiClient.connect(deviceCreds->getHostname(), 443))) {
+        debug("Your Asset(s) can't be created on AllThingsTalk because the HTTPS Connection failed.");
         return false;
     } else {
-        return true;
+        if (wifiClient.verify(fingerprint, deviceCreds->getHostname())) {
+            debugVerbose("HTTPS Connection Established: TLS Certificate Fingerpint Verified");
+            return true;
+        } else {
+            debug("Couldn't establish HTTPS connection for asset creation to AllThingsTalk due to certificate mismatch.");
+            return false;
+        }
     }
 }
 
 // Used to disconnect HTTP (for asset creation)
-void Device::disconnectHttp() {
+void Device::disconnectHttps() {
     wifiClient.flush();
     wifiClient.stop();
-    debugVerbose("HTTP Connection (for Asset creation) to AllThingsTalk Closed");
+    debugVerbose("HTTPS Connection to AllThingsTalk Closed");
 }
 
 // Used by the user to create a new asset on AllThingsTalk
@@ -409,10 +423,11 @@ bool Device::createAsset(String name, String title, String assetType, String dat
 
 // Used by the SDK to actually create all the assets requested by user
 AssetProperty *Device::createAssets() {
-    if (assetsToCreate && connectHttp()) {
+    if (assetsToCreate && connectHttps()) {
         connectionLedFadeStart();
+        //connectHttps();
         for (int i=0; i < assetsToCreateCount; i++) {
-            connectHttp();
+            connectHttps();
             wifiClient.println("PUT /device/" + String(deviceCreds->getDeviceId()) + "/asset/" + assetProperties[i].name  + " HTTP/1.1");
             wifiClient.print(F("Host: "));
             wifiClient.println(deviceCreds->getHostname());
@@ -505,7 +520,7 @@ AssetProperty *Device::createAssets() {
                 }
             }
         }
-        disconnectHttp();
+        disconnectHttps();
     }
 }
 
@@ -522,17 +537,23 @@ void Device::connectAllThingsTalk() {
             }
             if (!client.connected()) { // Double check while running to avoid double debug output (because maintainWiFi() also calls this method if ATT isn't connected)
                 if (client.connect(mqttId, deviceCreds->getDeviceToken(), "arbitrary")) {
-                    if (callbackEnabled == true) {
-                        // Build the subscribe topic
-                        char command_topic[256];
-                        snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
-                        client.subscribe(command_topic); // Subscribe to it
+                    if (wifiClient.verify(fingerprint, deviceCreds->getHostname())) {
+                        debug("");
+                        debugVerbose("TLS Certificate Fingerpint Verified");
+                        if (callbackEnabled == true) {
+                            // Build the subscribe topic
+                            char command_topic[256];
+                            snprintf(command_topic, sizeof command_topic, "%s%s%s", "device/", deviceCreds->getDeviceId(), "/asset/+/command");
+                            client.subscribe(command_topic); // Subscribe to it
+                        }
+                        disconnectedAllThingsTalk = false;
+                        debug("Connected to AllThingsTalk!");
+                        connectionLedFadeStop();
+                        if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
+                    } else {
+                        debug("");
+                        debug("Connection Failed: Couldn't establish a secure connection to AllThingsTalk (certificate mismatch)");
                     }
-                    disconnectedAllThingsTalk = false;
-                    debug("");
-                    debug("Connected to AllThingsTalk!");
-                    connectionLedFadeStop();
-                    if (rssiReporting) send(wifiSignalAsset, wifiSignal()); // Send WiFi Signal Strength upon connecting
                 } else {
                     debug("", '.');
                     delay(1500);

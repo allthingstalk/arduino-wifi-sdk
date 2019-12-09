@@ -5,7 +5,7 @@
  *                             |___/
  *
  * Copyright 2019 AllThingsTalk
- * Author: Vanja
+ * Author: Vanja Stanic
  * https://allthingstalk.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
 #include <Scheduler.h>
 #include <WiFiNINA.h>
 
-WiFiClient wifiClient;
+WiFiSSLClient wifiClient;
 PubSubClient client(wifiClient);
 
 Device *Device::instance = nullptr;
@@ -215,7 +215,7 @@ bool Device::connectionLed(bool state, int ledPin) {
 // Used to enable debug output
 void Device::debugPort(Stream &debugSerial) {
     this->debugSerial = &debugSerial;
-    delay(5000);
+    delay(5000);  // Give time to user to open serial monitor
     debug("");
     debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     debug("Debug Level: Normal");
@@ -225,7 +225,7 @@ void Device::debugPort(Stream &debugSerial) {
 void Device::debugPort(Stream &debugSerial, bool verbose) {
     debugVerboseEnabled = verbose;
     this->debugSerial = &debugSerial;
-    delay(5000);
+    delay(5000); // Give time to user to open serial monitor
     debug("");
     debug("------------- AllThingsTalk WiFi SDK Serial Begin -------------");
     if (!verbose) debug("Debug Level: Normal");
@@ -298,7 +298,7 @@ void Device::init() {
     showMaskedCredentials();
 
     // Set MQTT Connection Parameters
-    client.setServer(deviceCreds->getHostname(), 1883);
+    client.setServer(deviceCreds->getHostname(), 8883);
     if (callbackEnabled == true) {
         client.setCallback(Device::mqttCallback);
     }
@@ -423,9 +423,9 @@ bool Device::setHostname(const char* hostname) {
 }
 
 // Used to connect to HTTP (for asset creation)
-bool Device::connectHttp() {
-    if (!(wifiClient.connect(deviceCreds->getHostname(), 80))) {
-        debug("Your Asset(s) can't be created on AllThingsTalk because the HTTP Connection failed.");
+bool Device::connectHttps() {
+    if (!(wifiClient.connect(deviceCreds->getHostname(), 443))) {
+        debug("Your Asset(s) can't be created on AllThingsTalk because the HTTPS Connection failed.");
         return false;
     } else {
         return true;
@@ -433,10 +433,10 @@ bool Device::connectHttp() {
 }
 
 // Used to disconnect HTTP (for asset creation)
-void Device::disconnectHttp() {
+void Device::disconnectHttps() {
     wifiClient.flush();
     wifiClient.stop();
-    debugVerbose("HTTP Connection (for Asset creation) to AllThingsTalk Closed");
+    debugVerbose("HTTPS Connection to AllThingsTalk Closed");
 }
 
 // Used by the user to create a new asset on AllThingsTalk
@@ -464,10 +464,11 @@ bool Device::createAsset(String name, String title, String assetType, String dat
 
 // Used by the SDK to actually create all the assets requested by user
 AssetProperty *Device::createAssets() {
-    if (assetsToCreate && connectHttp()) {
+    if (assetsToCreate && connectHttps()) {
         connectionLedFadeStart();
+        //connectHttps();
         for (int i=0; i < assetsToCreateCount; i++) {
-            connectHttp();
+            connectHttps();
             wifiClient.println("PUT /device/" + String(deviceCreds->getDeviceId()) + "/asset/" + assetProperties[i].name  + " HTTP/1.1");
             wifiClient.print(F("Host: "));
             wifiClient.println(deviceCreds->getHostname());
@@ -560,7 +561,7 @@ AssetProperty *Device::createAssets() {
                 }
             }
         }
-        disconnectHttp();
+        disconnectHttps();
     }
 }
 

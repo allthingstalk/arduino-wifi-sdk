@@ -124,8 +124,8 @@ private:
     static const int maximumAssetsToCreate = 64;
     AssetProperty assetProperties[maximumAssetsToCreate];
     AssetProperty *createAssets();
-    bool connectHttp();
-    void disconnectHttp();
+    bool connectHttps();
+    void disconnectHttps();
     
     // Connecting
     void generateRandomID();
@@ -133,6 +133,9 @@ private:
     void maintainAllThingsTalk();
     void reportWiFiSignal();
     void showMaskedCredentials();
+    // This is the SHA1 TLS fingerprint of https://api.allthingstalk.io which will expire on 3.11.2020
+    // Make sure to update SDK (or update this value below manually) after this date
+    const char* fingerprint = "87 C0 93 B4 4D D7 FF 08 81 2E 97 AF 11 85 38 3D D7 AA B5 B6";
 
     // Actuations / Callbacks
     #ifdef ESP8266
