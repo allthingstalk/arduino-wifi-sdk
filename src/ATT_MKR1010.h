@@ -985,5 +985,8 @@ template bool Device::send(char *asset, char *payload);
 template bool Device::send(char *asset, const char *payload);
 template bool Device::send(char *asset, String payload);
 template bool Device::send(char *asset, int payload);
+template bool Device::send(char *asset, byte payload);
+template bool Device::send(char *asset, short payload);
+template bool Device::send(char *asset, long payload);
 template bool Device::send(char *asset, float payload);
 template bool Device::send(char *asset, double payload);
