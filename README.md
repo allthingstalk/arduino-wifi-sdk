@@ -287,7 +287,7 @@ You can override this by defining your custom interval (in seconds) using `wifiS
 
 ```cpp
 void setup() {
-  device.wifiSignalReporting(true, seconds);
+  device.wifiSignalReporting(true, 600); // Turns on and reports WiFi Signal Strength every 10 minutes (600 seconds)
   device.init();
 }
 ```
@@ -306,7 +306,7 @@ void setup() {
   device.init();
 }
 void loop() {
-  Serial.println(wifiSignal()); // Prints WiFi signal to serial
+  Serial.println(wifiSignal()); // Prints WiFi signal to Serial
 }
 ```
 
@@ -338,8 +338,8 @@ Method accepts 4 arguments of type String, which are:
 Example:
 ```cpp
 void setup() {
-  Serial.begin(115200);
-  device.debugPort(Serial);
+  Serial.begin(115200); // Initialize Serial to 115200 baud rate
+  device.debugPort(Serial); // Enable SDK debug output
   device.createAsset("led", "LED Light", "actuator", "boolean");
   device.createAsset("servo", "Servo Motor", "actuator", "integer");
   device.createAsset("button", "Push Button", "sensor", "boolean");
@@ -511,7 +511,7 @@ For example, if you have `Serial.begin(115200)` in your `setup()` function, you'
 
 ```cpp
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // Initialize Serial to 115200 baud rate
   device.debugPort(Serial);  // Now the library knows where to output debug information
   device.init();
 }
@@ -548,7 +548,7 @@ Example:
 
 ```cpp
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // Initialize Serial to 115200 baud rate
   device.debugPort(Serial, true); // Verbose Debug Output is now enabled
   device.init();
 }
@@ -557,7 +557,7 @@ void setup() {
 
 # Troubleshooting and Notes
 
-- This SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure** you're working with at least these versions:
+- This SDK has been tested and confirmed to work with the following software, so if you're having issues with your device/code, **make sure you're working with at least these versions**:
 
     | Name | Version | Used for | Type | Description |
     |--|--|--|--|--|
@@ -571,6 +571,8 @@ void setup() {
     | [PubSubClient](https://pubsubclient.knolleary.net/) (INCLUDED) | 2.7.0 | All | Arduino Library | Used by this SDK to connect to AllThingsTalk. Already included in this SDK. |
 - Make sure to [enable verbose debug output](#enable-verbose-debug-output) as it could tell you a lot and thus help you resolve your problem.
 - If you try to send data to a non-existent asset on AllThingsTalk, you might get disconnected. This is by design. You can make sure the asset exists by using the [create assets](#creating-assets) feature of this SDK.
+- If you get connected to WiFi easily but AllThingsTalk is connecting and disconnecting erratically, check your AllThingsTalk [credentials](#defining-credentials) (they could be wrong, token could be revoked, device may be deleted, etc)
+- If you are constantly getting disconnected (WiFi taking too long to connect, AllThingsTalk connection being dropped constantly), try to change your WiFi access point - it could be that it's congested.
 - Connection to AllThingsTalk may break if you use the `delay()` function too often or for prolonged periods of time due to the nature of that function. The SDK will recover the connection automatically, but if this happens too often, try to use `millis()` to create delays when possible.
 - Due to how ESP8266 works, the WiFi Connection may break when using `AnalogRead()` sometimes. This is out of our control. It will most likely fail when reading an analog pin too often. In this case, it is okay to use `delay()` for about 50 or more milliseconds (see what works for you) in order to avoid this issue.
 - Receiving **JSON Objects** or **JSON Arrays** is not currently supported. Support is planned in a future release.
