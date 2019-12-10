@@ -376,7 +376,6 @@ bool Device::setHostname(String hostname) {
 
 // Used to connect to HTTP (for asset creation)
 bool Device::connectHttps() {
-    debugVerbose("mile: connect");
     if (!(wifiClient.connect(deviceCreds->getHostname(), 443))) {
         debug("Your Asset(s) can't be created on AllThingsTalk because the HTTPS Connection failed.");
         return false;
@@ -423,7 +422,7 @@ bool Device::createAsset(String name, String title, String assetType, String dat
 
 // Used by the SDK to actually create all the assets requested by user
 AssetProperty *Device::createAssets() {
-    if (assetsToCreate && connectHttps()) {
+    if (assetsToCreate) {
         connectionLedFadeStart();
         //connectHttps();
         for (int i=0; i < assetsToCreateCount; i++) {
@@ -432,6 +431,8 @@ AssetProperty *Device::createAssets() {
             wifiClient.print(F("Host: "));
             wifiClient.println(deviceCreds->getHostname());
             wifiClient.println(F("Content-Type: application/json"));
+            //wifiClient.println(F("Connection: keep-alive"));
+            //wifiClient.println(F("Keep-Alive: timeout=30, max=100"));
             wifiClient.print(F("Authorization: Bearer "));
             wifiClient.println(deviceCreds->getDeviceToken());
             wifiClient.print(F("Content-Length: ")); {
@@ -949,5 +950,8 @@ template bool Device::send(char *asset, char *payload);
 template bool Device::send(char *asset, const char *payload);
 template bool Device::send(char *asset, String payload);
 template bool Device::send(char *asset, int payload);
+template bool Device::send(char *asset, byte payload);
+template bool Device::send(char *asset, short payload);
+template bool Device::send(char *asset, long payload);
 template bool Device::send(char *asset, float payload);
 template bool Device::send(char *asset, double payload);
