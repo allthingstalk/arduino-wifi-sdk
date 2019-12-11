@@ -269,6 +269,15 @@ void Device::init() {
     // Start flashing the Connection LED
     connectionLedFadeStart();
     
+    // Check the WiFiNina firmware
+    String fv = WiFi.firmwareVersion();
+    if (fv < "1.2.4") {
+      debug("WARNING: Your Arduino MKR WiFi 1010 is running old WiFiNINA Firmware", ' ');
+      debug(fv);
+      debug("INFO: To avoid connection issues, upgrade your firmware to the newest version:");
+      debug("INFO: https://www.arduino.cc/en/Tutorial/WiFiNINA-FirmwareUpdater");
+    }
+    
     // Print out information about Connection LED
     if (ledEnabled == false) {
         debug("Connection LED: Disabled");
