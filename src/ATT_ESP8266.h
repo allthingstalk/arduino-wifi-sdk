@@ -376,16 +376,18 @@ bool Device::setHostname(String hostname) {
 
 // Used to connect to HTTP (for asset creation)
 bool Device::connectHttps() {
-    if (!(wifiClient.connect(deviceCreds->getHostname(), 443))) {
-        debug("Your Asset(s) can't be created on AllThingsTalk because the HTTPS Connection failed.");
-        return false;
-    } else {
-        if (wifiClient.verify(fingerprint, deviceCreds->getHostname())) {
-            debugVerbose("HTTPS Connection Established: TLS Certificate Fingerpint Verified");
-            return true;
+    while (!wifiClient.connected()) {
+        if ((wifiClient.connect(deviceCreds->getHostname(), 443))) {
+            if (wifiClient.verify(fingerprint, deviceCreds->getHostname())) {
+                debugVerbose("HTTPS Connection Established: TLS Certificate Fingerpint Verified");
+                return true;
+            } else {
+                debug("Couldn't establish HTTPS connection for asset creation to AllThingsTalk due to certificate mismatch.");
+                //return false;
+            }
         } else {
-            debug("Couldn't establish HTTPS connection for asset creation to AllThingsTalk due to certificate mismatch.");
-            return false;
+            debug("Your Asset(s) can't be created on AllThingsTalk because the HTTPS Connection failed.");
+            //return false;
         }
     }
 }
@@ -425,14 +427,15 @@ AssetProperty *Device::createAssets() {
     if (assetsToCreate) {
         connectionLedFadeStart();
         //connectHttps();
+        connectHttps();
         for (int i=0; i < assetsToCreateCount; i++) {
-            connectHttps();
+            
             wifiClient.println("PUT /device/" + String(deviceCreds->getDeviceId()) + "/asset/" + assetProperties[i].name  + " HTTP/1.1");
             wifiClient.print(F("Host: "));
             wifiClient.println(deviceCreds->getHostname());
             wifiClient.println(F("Content-Type: application/json"));
-            //wifiClient.println(F("Connection: keep-alive"));
-            //wifiClient.println(F("Keep-Alive: timeout=30, max=100"));
+            // wifiClient.println(F("Connection: keep-alive"));
+            // wifiClient.println(F("Keep-Alive: timeout=30, max=100"));
             wifiClient.print(F("Authorization: Bearer "));
             wifiClient.println(deviceCreds->getDeviceToken());
             wifiClient.print(F("Content-Length: ")); {
@@ -520,6 +523,7 @@ AssetProperty *Device::createAssets() {
                     }
                 }
             }
+            wifiClient.flush();
         }
         disconnectHttps();
     }
