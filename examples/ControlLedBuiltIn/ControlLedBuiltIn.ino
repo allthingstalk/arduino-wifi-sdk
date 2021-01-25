@@ -31,7 +31,7 @@ void setup() {
   device.debugPort(Serial);             // Set AllThingsTalk library to output its debug to "Serial"
   device.connectionLed(false);          // Disable the Connection LED feature because we're going to control that exact LED
   device.setActuationCallback(asset, actuation);  // "asset" - Variable we defined above, "actuation" - Name of the function below that does the work
-  device.createAsset("builtin-led-example", "Built-In LED (SDK Example)", "sensor", "boolean"); // Create asset on your AllThingsTalk to control the LED
+  device.createAsset("builtin-led-example", "Built-In LED (SDK Example)", "actuator", "boolean"); // Create asset on your AllThingsTalk to control the LED
   device.init();                        // Initialize AllThingsTalk
 }
 
