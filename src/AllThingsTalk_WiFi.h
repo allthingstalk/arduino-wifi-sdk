@@ -73,9 +73,9 @@ public:
     void connect();
     void disconnect();
     void connectWiFi();
-    #ifdef ESP8266 || ESP32
+    #ifdef ESP8266
     bool setHostname(String hostname);
-    #else
+    #else // MKR and ESP32 Use const char* for this
     bool setHostname(const char* hostname);
     #endif
     void disconnectWiFi();
@@ -197,10 +197,10 @@ private:
     // Connection parameters
     bool disconnectedWiFi;                 // True when it's intentionally disconnected
     bool disconnectedAllThingsTalk;        // True when it's intentionally disconnected
-    #ifdef ESP8266 || ESP32
+    #ifdef ESP8266
     String wifiHostname;                   // WiFi Hostname itself
     #else
-    const char* wifiHostname;              // Used for MKR
+    const char* wifiHostname;              // Used for MKR and ESP32
     #endif
     bool wifiHostnameSet = false;          // For tracking if WiFi hostname is set
 };

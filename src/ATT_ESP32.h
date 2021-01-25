@@ -25,13 +25,20 @@
 
 #include <Ticker.h>
 #include <WiFi.h>
+#include <analogWrite.h> // External library, required only for ESP32, https://github.com/ERROPiX/ESP32_AnalogWrite
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
 Ticker fader;
 
+Device *Device::instance = nullptr;
+
 // Constructor
 Device::Device(WifiCredentials &wifiCreds, DeviceConfig &deviceCreds) {
+    if (Device::instance != nullptr) {
+        //#error "This device doesn't support more than 1 object";
+    }
+    Device::instance = this;
     this->deviceCreds = &deviceCreds;
     this->wifiCreds = &wifiCreds;
 }
@@ -62,8 +69,9 @@ template<typename T> void Device::debugVerbose(T message, char separator) {
 void Device::connectionLedFadeStart() {
     if (ledEnabled == true) {
         if (fader.active() == false) {
+            //fader.attach_ms(1, std::bind(&Device::connectionLedFadeStart, this));
             fader.attach_ms(1, std::bind(&Device::connectionLedFadeStart, this));
-            //fader.attach_ms(1, Device::connectionLedFadeStart());
+            //fader.attach_ms(1, instance->connectionLedFadeStarts;
         } else {
             unsigned long thisMillis = millis();
             if (thisMillis - previousFadeMillis >= fadeInterval) {
@@ -183,7 +191,12 @@ void Device::debugPort(Stream &debugSerial, bool verbose) {
 
 // Generate Unique MQTT ID
 void Device::generateRandomID() {
-    sprintf(mqttId, "%s%i", "arduino-", ESP.getChipId());
+    // sprintf(mqttId, "%s%i", "arduino-", ESP.getChipId());
+    // debugVerbose("Unique MQTT ID of Device:", ' ');
+    // debugVerbose(mqttId);
+    byte mac[6];
+    WiFi.macAddress(mac);
+    sprintf(mqttId, "arduino-%2X%2X%2X%2X", mac[3], mac[2], mac[1], mac[0]);
     debugVerbose("Unique MQTT ID of Device:", ' ');
     debugVerbose(mqttId);
 }
@@ -283,7 +296,7 @@ void Device::connectWiFi() {
         connectionLedFadeStart();
         WiFi.mode(WIFI_STA);
         if (wifiHostnameSet) {
-            WiFi.hostname(wifiHostname);
+            WiFi.setHostname(wifiHostname);
             debugVerbose("WiFi Hostname:", ' ');
             debugVerbose(wifiHostname);
         }
@@ -362,7 +375,7 @@ void Device::disconnectWiFi() {
 }
 
 // Used to set hostname that the device will present itself as on the network
-bool Device::setHostname(String hostname) {
+bool Device::setHostname(const char* hostname) {
     wifiHostname = hostname;
     wifiHostnameSet = true;
     return true;
@@ -719,7 +732,7 @@ String extractAssetNameFromTopic(String topic) {
 
 // MQTT Callback for receiving messages
 void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length) {
-    debugVerbose("--------------------------------------");
+    instance->debugVerbose("--------------------------------------");
     debug("< Message Received from AllThingsTalk");
     String payload;
     String topic(p_topic);
