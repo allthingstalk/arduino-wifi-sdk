@@ -4,8 +4,8 @@
  * /_/ \_\_|_| |_| |_||_|_|_||_\__, /__/ |_|\__,_|_|_\_\ |___/___/|_|\_\
  *                             |___/
  *
- * Copyright 2019 AllThingsTalk
- * Author: Vanja
+ * Copyright 2022 AllThingsTalk
+ * Author: Vanja Stanic
  * https://allthingstalk.com
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -123,9 +123,7 @@ private:
     bool assetsToCreate = false;
     static const int maximumAssetsToCreate = 64;
     AssetProperty assetProperties[maximumAssetsToCreate];
-    AssetProperty *createAssets();
-    bool connectHttp();
-    void disconnectHttp();
+    void createAssets();
     
     // Connecting
     void generateRandomID();
@@ -138,7 +136,7 @@ private:
     #ifdef ESP8266
     void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length);
     #else
-    static Device* instance; // // Internal callback saving for non-ESP devices (e.g. MKR)
+    static Device* instance; // Internal callback saving for non-ESP devices (e.g. MKR)
     static void mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length); // Static is only for MKR
     #endif
     static const int maximumActuations = 32;
@@ -150,7 +148,7 @@ private:
     // Connection Signal LED Parameters
     #define UP 1
     #define DOWN 0
-    #ifdef ESP8266
+    #ifdef ESP8266 || ESP32
     bool ledEnabled                  = true;    // Default state for Connection LED
     int connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
     static const int minPWM          = 0;       // Minimum PWM
