@@ -160,7 +160,11 @@ private:
     unsigned long previousFadeMillis;           // millis() timing Variable, just for fading
     #else
     bool ledEnabled                  = true;    // Default state for Connection LED
+    #ifdef ESP32
+    int connectionLedPin             = 2;       // Default pin for built-in LED pin for most ESP32 dev boards since LED_BUILTIN isn't defined in ESP32 core
+    #else
     int connectionLedPin             = LED_BUILTIN;
+    #endif
     bool schedulerActive             = false;   // Keep track of scheduler
     bool supposedToFade              = false;   // Know if Connection LED is supposed to fade
     bool supposedToStop              = false;   // Keep track if fading is supposed to stop
