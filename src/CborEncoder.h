@@ -68,9 +68,9 @@ public:
 	CborWriter(CborOutput &output);
 	~CborWriter();
 
-#ifdef ARDUINO_SAMD_MKRWIFI1010
+    #ifdef ARDUINO_SAMD_MKRWIFI1010 || ESP32
 	void writeInt(const int value);
-#endif
+    #endif
 	void writeInt(const int32_t value);
 	void writeInt(const int64_t value);
 	void writeInt(const uint32_t value);
