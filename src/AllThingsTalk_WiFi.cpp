@@ -51,7 +51,7 @@
 #endif
 
 
-#ifdef ESP8266 || ESP32
+#if defined(ESP8266) || defined(ESP32)
 Ticker fader;
 #endif
 WiFiClient networkClient;
@@ -99,7 +99,7 @@ template<typename T> void Device::debugVerbose(T message, char separator) {
 
 // Start fading the Connection LED
 void Device::connectionLedFadeStart() {
-    #ifdef ESP8266 || ESP32
+    #if defined(ESP8266) || defined(ESP32)
     if (ledEnabled == true) {
         if (fader.active() == false) {
             fader.attach_ms(1, std::bind(&Device::connectionLedFadeStart, this));
@@ -138,7 +138,7 @@ void Device::connectionLedFadeStart() {
 
 // Stop the Connection LED
 void Device::connectionLedFadeStop() {
-    #ifdef ESP8266 || ESP32
+    #if defined(ESP8266) || defined(ESP32)
     if (ledEnabled == true) {
         fader.detach();
         while (fadeValue <= maxPWM) {
@@ -326,7 +326,7 @@ void Device::generateRandomID() {
 #ifdef ESP8266
     sprintf(mqttId, "%s%i", "arduino-", ESP.getChipId());
 #endif
-#ifdef ARDUINO_SAMD_MKRWIFI1010 || ESP32
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ESP32)
     byte mac[6];
     WiFi.macAddress(mac);
     sprintf(mqttId, "arduino-%2X%2X%2X%2X", mac[3], mac[2], mac[1], mac[0]);
@@ -404,7 +404,7 @@ void Device::init() {
     // Set MQTT Connection Parameters
     mqtt.setServer(deviceCreds->getHostname(), 1883);
     if (callbackEnabled == true) {
-        #ifdef ESP8266 || ESP32
+        #if defined(ESP8266) || defined(ESP32)
         mqtt.setCallback([this] (char* topic, byte* payload, unsigned int length) { this->mqttCallback(topic, payload, length); });
         #else
         mqtt.setCallback(Device::mqttCallback);
@@ -444,14 +444,14 @@ void Device::disconnect() {
 void Device::connectWiFi() {
     if (WiFi.status() != WL_CONNECTED) {
         connectionLedFadeStart();
-        #ifdef ESP8266 || ESP32
+        #if defined(ESP8266) || defined(ESP32)
         WiFi.mode(WIFI_STA);
         #endif
         if (wifiHostnameSet) {
             #ifdef ESP8266
             WiFi.hostname(wifiHostname);
             #endif
-            #ifdef ARDUINO_SAMD_MKRWIFI1010 || ESP32
+            #if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ESP32)
             WiFi.setHostname(wifiHostname);
             #endif
             debugVerbose("WiFi Hostname:", ' ');
@@ -913,7 +913,7 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     if (variant.is<int>()) debug("Value type: INTEGER");
     if (variant.is<double>()) debug("Value type: DOUBLE");
     if (variant.is<float>()) debug("Value type: FLOAT");
-    if (variant.is<char*>()) debug("Value type: CHAR*");
+    if (variant.is<const char*>()) debug("Value type: CONST CHAR*");
     debug("------------------------------------------");
 */
 
@@ -962,7 +962,7 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     }
     
     // CONST CHAR*
-    if (actuationCallback->actuationCallbackArgumentType == 4 && variant.is<char*>()) {
+    if (actuationCallback->actuationCallbackArgumentType == 4 && variant.is<const char*>()) {
         const char* value = doc["value"];
         debugVerbose("Called Actuation for Asset:", ' ');
         debugVerbose(actuationCallback->asset, ',');
@@ -973,7 +973,7 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     }
     
     // STRING
-    if (actuationCallback->actuationCallbackArgumentType == 5 && variant.is<char*>()) {
+    if (actuationCallback->actuationCallbackArgumentType == 5 && variant.is<const char*>()) {
         String value = doc["value"];
         debugVerbose("Called Actuation for Asset:", ' ');
         debugVerbose(actuationCallback->asset, ',');
@@ -1052,7 +1052,7 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     if (variant.is<int>()) debug("Value type: INTEGER");
     if (variant.is<double>()) debug("Value type: DOUBLE");
     if (variant.is<float>()) debug("Value type: FLOAT");
-    if (variant.is<char*>()) debug("Value type: CHAR*");
+    if (variant.is<const char*>()) debug("Value type: CHAR*");
     debug("------------------------------------------");
 */
 
@@ -1101,7 +1101,7 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     }
     
     // CONST CHAR*
-    if (actuationCallback->actuationCallbackArgumentType == 4 && variant.is<char*>()) {
+    if (actuationCallback->actuationCallbackArgumentType == 4 && variant.is<const char*>()) {
         const char* value = doc["value"];
         instance->debugVerbose("Called Actuation for Asset:", ' ');
         instance->debugVerbose(actuationCallback->asset, ',');
@@ -1112,7 +1112,7 @@ void Device::mqttCallback(char* p_topic, byte* p_payload, unsigned int p_length)
     }
     
     // STRING
-    if (actuationCallback->actuationCallbackArgumentType == 5 && variant.is<char*>()) {
+    if (actuationCallback->actuationCallbackArgumentType == 5 && variant.is<const char*>()) {
         String value = doc["value"];
         instance->debugVerbose("Called Actuation for Asset:", ' ');
         instance->debugVerbose(actuationCallback->asset, ',');

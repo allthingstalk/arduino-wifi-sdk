@@ -148,7 +148,7 @@ private:
     // Connection Signal LED Parameters
     #define UP 1
     #define DOWN 0
-    #ifdef ESP8266 || ESP32
+    #if defined(ESP8266) || defined(ESP32)
     bool ledEnabled                  = true;    // Default state for Connection LED
     int connectionLedPin             = 2;       // Default Connection LED Pin for ESP8266
     static const int minPWM          = 0;       // Minimum PWM
@@ -188,10 +188,10 @@ private:
     bool callbackEnabled = true;           // Variable for checking if callback is enabled
 
     // WiFi Signal Reporting Parameters
-    char* wifiSignalAsset   = "wifi-signal"; // Asset name on AllThingsTalk for WiFi Signal Reporting
-    bool rssiReporting      = false;       // Default value for WiFi Signal Reporting
-    int rssiReportInterval  = 300;         // Default interval (seconds) for WiFi Signal Reporting
-    unsigned long rssiPrevTime;            // Remembers last time WiFi Signal was reported
+    char* wifiSignalAsset   = "wifi-signal";       // Asset name on AllThingsTalk for WiFi Signal Reporting
+    bool rssiReporting      = false;               // Default value for WiFi Signal Reporting
+    int rssiReportInterval  = 300;                 // Default interval (seconds) for WiFi Signal Reporting
+    unsigned long rssiPrevTime;                    // Remembers last time WiFi Signal was reported
 
     // Debug parameters
     bool debugVerboseEnabled = false;
