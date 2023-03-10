@@ -153,19 +153,19 @@ void CborWriter::writeTypeAndValue(uint8_t majorType, const uint64_t value) {
 }
 
 // UNCOMMENT FOR MKR1010
-#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ESP32)
+#if defined(ARDUINO_SAMD_MKRWIFI1010)
 void CborWriter::writeInt(const int value) {
 	// This will break on 64-bit platforms
 	writeTypeAndValue(0, (uint32_t)value);
 }
 #endif
 
-void CborWriter::writeInt(const uint32_t value) {
-	writeTypeAndValue(0, value);
-}
-
-void CborWriter::writeInt(const uint64_t value) {
-	writeTypeAndValue(0, value);
+void CborWriter::writeInt(const int32_t value) {
+	if(value < 0) {
+		writeTypeAndValue(1, (uint32_t) -(value+1));
+	} else {
+		writeTypeAndValue(0, (uint32_t) value);
+	}
 }
 
 void CborWriter::writeInt(const int64_t value) {
@@ -176,12 +176,12 @@ void CborWriter::writeInt(const int64_t value) {
 	}
 }
 
-void CborWriter::writeInt(const int32_t value) {
-	if(value < 0) {
-		writeTypeAndValue(1, (uint32_t) -(value+1));
-	} else {
-		writeTypeAndValue(0, (uint32_t) value);
-	}
+void CborWriter::writeInt(const uint32_t value) {
+	writeTypeAndValue(0, value);
+}
+
+void CborWriter::writeInt(const uint64_t value) {
+	writeTypeAndValue(0, value);
 }
 
 void CborWriter::writeBytes(const unsigned char *data, const unsigned int size) {

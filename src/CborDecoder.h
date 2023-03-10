@@ -3,8 +3,8 @@
 
 #include "Arduino.h"
 
-#define INT_MAX 2
-#define INT_MIN 2
+#define _INT_MAX 2
+#define _INT_MIN 2
 
 
 typedef enum {

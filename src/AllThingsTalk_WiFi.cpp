@@ -99,7 +99,7 @@ template<typename T> void Device::debugVerbose(T message, char separator) {
 
 // Start fading the Connection LED
 void Device::connectionLedFadeStart() {
-    #if defined(ESP8266) || defined(ESP32)
+    #if defined(ESP8266)// || defined(ESP32)
     if (ledEnabled == true) {
         if (fader.active() == false) {
             fader.attach_ms(1, std::bind(&Device::connectionLedFadeStart, this));
@@ -636,7 +636,6 @@ void Device::createAssets() {
                         }
                     }
                 }
-                httpNetworkClient.flush();
                 httpNetworkClient.stop();
             } else {
                 debug("Asset couldn't be created on AllThingsTalk because the HTTP connection failed.");

@@ -250,7 +250,7 @@ void CborReader::Run() {
 						break;
 					case 4:
 						temp = input->getInt();
-						if(temp <= INT_MAX) {
+						if(temp <= _INT_MAX) {
 							listener->OnInteger(temp);
 						} else {
 							listener->OnExtraInteger(temp, 1);
@@ -276,10 +276,10 @@ void CborReader::Run() {
 						break;
 					case 4:
 						temp = input->getInt();
-						if(temp <= INT_MAX) {
+						if(temp <= _INT_MAX) {
 							listener->OnInteger(-(int32_t) temp);
 						} else if(temp == 2147483648u) {
-							listener->OnInteger(INT_MIN);
+							listener->OnInteger(_INT_MIN);
 						} else {
 							listener->OnExtraInteger(temp, -1);
 						}
@@ -646,7 +646,7 @@ void CborReader::GetCborData(String &Cborpackage) {
 						break;
 					case 4:
 						temp =(int32_t) input->getInt();
-						if(temp <= INT_MAX) {
+						if(temp <= _INT_MAX) {
 							listener->OnInteger(temp);
 							Cborpackage += temp;
 							Cborpackage += commaChar;
@@ -691,17 +691,17 @@ void CborReader::GetCborData(String &Cborpackage) {
 						break;
 					case 4:
 						temp = input->getInt();
-						if(temp <= INT_MAX) {
+						if(temp <= _INT_MAX) {
 							listener->OnInteger(-(int32_t) temp);
 							Cborpackage += (int32_t) temp ;
 
 						Serial.print("h");
 							Cborpackage += commaChar;
 						} else if(temp == 2147483648u) {
-							listener->OnInteger(INT_MIN);
+							listener->OnInteger(_INT_MIN);
 							Serial.print("h");
 
-							Cborpackage += INT_MIN ;
+							Cborpackage += _INT_MIN ;
 							Cborpackage += commaChar;
 						} else {
 							listener->OnExtraInteger(temp, -1);
@@ -744,7 +744,7 @@ void CborReader::GetCborData(String &Cborpackage) {
 				input->getBytes(data, currentLength);
 				state = STATE_TYPE;
 				listener->OnBytes(data, currentLength);
-				Cborpackage +=  String(INT_MIN, DEC) ;
+				Cborpackage +=  String(_INT_MIN, DEC) ;
 				Cborpackage += commaChar;
 			} else break;
 		} else if(state == STATE_STRING_SIZE) {
