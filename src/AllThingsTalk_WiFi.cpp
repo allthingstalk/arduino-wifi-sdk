@@ -46,7 +46,7 @@
 #ifdef ESP32
 #include <Ticker.h>
 #include <WiFi.h>
-#include <analogWrite.h> // External library, required only for ESP32, https://github.com/ERROPiX/ESP32_AnalogWrite
+//#include <analogWrite.h> // External library, required only for ESP32, https://github.com/ERROPiX/ESP32_AnalogWrite
 #define SUPPORTS
 #endif
 
@@ -99,7 +99,7 @@ template<typename T> void Device::debugVerbose(T message, char separator) {
 
 // Start fading the Connection LED
 void Device::connectionLedFadeStart() {
-    #if defined(ESP8266)// || defined(ESP32)
+    #if defined(ESP8266) //|| defined(ESP32)
     if (ledEnabled == true) {
         if (fader.active() == false) {
             fader.attach_ms(1, std::bind(&Device::connectionLedFadeStart, this));
@@ -482,28 +482,28 @@ void Device::maintainWiFi() {
             connectionLedFadeStart();
             debug("WiFi Connection Dropped! Reason:", ' ');
             switch(WiFi.status()) {
-                case 1:
+                case WL_CONNECTED:
                     debug("Seems like WiFi is connected, but it's giving an error (WL_CONNECTED)");
                     break;
-                case 2:
+                case WL_NO_SHIELD:
                     debug("No WiFi Shield Present (WL_NO_SHIELD)");
                     break;
-                case 3:
+                case WL_IDLE_STATUS:
                     debug("WiFi.begin is currently trying to connect... (WL_IDLE_STATUS)");
                     break;
-                case 4:
+                case WL_NO_SSID_AVAIL:
                     debug("SSID Not Available (WL_NO_SSID_AVAIL)");
                     break;
-                case 5:
+                case WL_SCAN_COMPLETED:
                     debug("WiFi Scan Completed (WL_SCAN_COMPLETED)");
                     break;
-                case 6:
+                case WL_CONNECT_FAILED:
                     debug("Connection lost and failed to connect after many attempts (WL_CONNECT_FAILED)");
                     break;
-                case 7:
+                case WL_CONNECTION_LOST:
                     debug("Connection Lost (WL_CONNECTION_LOST)");
                     break;
-                case 8:
+                case WL_DISCONNECTED:
                     debug("Intentionally disconnected from the network (WL_DISCONNECTED)");
                     break;
                 default:
@@ -569,6 +569,7 @@ bool Device::createAsset(String name, String title, String assetType, String dat
     assetProperties[assetsToCreateCount].assetType = assetType;
     assetProperties[assetsToCreateCount].dataType = dataType;
     ++assetsToCreateCount;
+    return true;
 }
 
 // Used by the SDK to actually create all the assets requested by user
@@ -767,13 +768,15 @@ String Device::wifiSignal() {
         } else if (signal > -55) {
             signalString = "Excellent";
         } else {
-            signalString = "Error";
+            signalString = "Error converting RSSI Values";
             debugVerbose("Error converting RSSI Values to WiFi Strength String");
         }
         return signalString;
     } else {
         debug("Can't read WiFi Signal Strength because you're not connected to WiFi");
+        return "Can't read WiFi Signal Strength because you're not connected to WiFi";
     }
+    return "Error getting WiFi Signal Strength";
 }
 
 // Add boolean callback (0)

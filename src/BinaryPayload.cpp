@@ -101,6 +101,7 @@ template<> bool BinaryPayload::add(GeoLocation location) {
     if (location.hasAltitude()) {
         add(location.altitude);
     }
+    return true;
 }
 
 template bool BinaryPayload::add(int t);

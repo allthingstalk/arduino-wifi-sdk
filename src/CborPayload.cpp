@@ -39,6 +39,7 @@ bool CborPayload::setTimestamp(uint64_t timestamp) {
 bool CborPayload::setLocation(GeoLocation location) {
     hasLocation = true;
     this->location = location;
+    return true;
 }
 
 template<> void CborPayload::write(bool value) {
@@ -143,6 +144,7 @@ template<typename T> bool CborPayload::set(char *assetName, T value) {
     writer->writeString(assetName);
     write(value);
     assetCount++;
+    return true;
 }
 
 template bool CborPayload::set(char *assetName, bool value);

@@ -64,7 +64,7 @@ In the blink of an eye, you'll be able to extract, visualize and use the collect
     
 	| Name | Author | Only for | Version (at least) |
 	|--|--|--|--|
-	| **ArduinoJson** | Benoit Blanchon | All Boards | 6.19.3 |
+	| **ArduinoJson** | Benoit Blanchon | All Boards | 6.21.0 |
 	| **WiFiNINA** | Arduino | MKR1010 | 1.8.13 |
 	| **Scheduler** | Arduino | MKR1010 | 0.4.4 |  
   | **analogWrite** | Abdelouahed Errouaguy | ESP32 | 0.1.0 |
@@ -557,14 +557,14 @@ void setup() {
 
     | Name | Version | Used for | Type | Description |
     |--|--|--|--|--|
-    | [Arduino IDE](https://www.arduino.cc/en/Main/Software) | 1.8.19 | All | Desktop Software | Main development environment. |
+    | [Arduino IDE](https://www.arduino.cc/en/Main/Software) | 2.0.4 | All | Desktop Software | Main development environment. |
     | [esp8266](https://github.com/esp8266/Arduino#installing-with-boards-manager) | 3.0.2 | ESP8266 |  Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with *ESP8266* and *ESP8266*-based devices. |
-    | [esp32](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html) | 1.0.6 | ESP32 |  Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with *ESP32* and *ESP32*-based devices. |
+    | [esp32](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html) | 2.0.6 | ESP32 |  Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with *ESP32* and *ESP32*-based devices. |
     | [Arduino SAMD](https://www.arduino.cc/en/Guide/MKRWiFi1010#toc2) | 1.8.13 | MKR1010 |Arduino Board [Core](https://www.arduino.cc/en/Guide/Cores) | Enables Arduino IDE to work with devices based on SAMD architecture (*MKR1010*). |
     | [NINA Firmware](https://www.arduino.cc/en/Tutorial/WiFiNINA-FirmwareUpdater) | 1.2.4 | MKR1010 | Firmware | Firmware that drives the WiFi module present on the *Arduino MKR1010*. |
     | [WiFiNINA](https://www.arduino.cc/en/Reference/WiFiNINA) | 1.8.13 | MKR1010 | Arduino Library | Enables *Arduino MKR1010* to connect to WiFi.  |
     | [Scheduler](https://www.arduino.cc/en/Reference/Scheduler) | 0.4.4 | MKR1010 | Arduino Library | Enables 'multithreading' on *Arduino MKR1010*. |
-    | [ArduinoJson](https://arduinojson.org/) | 6.19.3 | All | Arduino Library | Parsing and building JSON payloads to send/receive from AllThingsTalk. |
+    | [ArduinoJson](https://arduinojson.org/) | 6.21.0 | All | Arduino Library | Parsing and building JSON payloads to send/receive from AllThingsTalk. |
     | [PubSubClient](https://pubsubclient.knolleary.net/) (INCLUDED) | 2.8.0 | All | Arduino Library | Used by this SDK to connect to AllThingsTalk. Already included in this SDK. |
 - Make sure to [enable verbose debug output](#enable-verbose-debug-output) as it could tell you a lot and thus help you resolve your problem.
 - If you try to send data to a non-existent asset on AllThingsTalk, you might get disconnected. This is by design. You can make sure the asset exists by using the [create assets](#creating-assets) feature of this SDK.

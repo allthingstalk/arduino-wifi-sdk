@@ -445,7 +445,6 @@ void CborReader::Run() {
 void CborReader::GetCborData(String &Cborpackage) {
 	uint32_t temp;
 	volatile char commaChar = ',';
-	int tempint;
 
 	while(1) {
 		if(state == STATE_TYPE) {
